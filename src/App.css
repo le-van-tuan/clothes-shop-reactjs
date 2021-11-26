@@ -1,0 +1,8 @@
+:root {
+    --bgPrimary: #fff;
+    --bgSecondary: #f1f1f1;
+}
+
+input[type='text'], input[type='password'], input[type='number'], textarea {
+    -webkit-appearance: unset !important;
+}
