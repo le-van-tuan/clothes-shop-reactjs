@@ -5,7 +5,9 @@ import {mobile} from "../responsive";
 const Container = styled.div`
   display: flex;
   padding-top: 10px;
+  margin-top: 0.1px;
   background-color: var(--bgSecondary);
+  box-shadow: 0 3px 2px 3px gray;
   ${mobile({flexDirection: "column"})}
 `;
 
@@ -17,7 +19,7 @@ const Left = styled.div`
 `;
 
 const Logo = styled.h1`
-    font-weight: bold;
+  font-weight: bold;
 `;
 
 const Desc = styled.p`
@@ -52,7 +54,7 @@ const Right = styled.div`
 `;
 
 const Seperator = styled.div`
-    flex: 1;
+  flex: 1;
 `;
 
 const ContactItem = styled.div`

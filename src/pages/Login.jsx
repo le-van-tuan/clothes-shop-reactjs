@@ -2,8 +2,9 @@ import styled from "styled-components";
 import {mobile} from "../responsive";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
-import {useForm} from "react-hook-form";
 import {login} from "../redux/apiCalls";
+import {Button, Form, Input} from "antd";
+import {LockOutlined, UserOutlined} from "@ant-design/icons";
 
 const Container = styled.div`
   display: flex;
@@ -16,93 +17,71 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   width: 25%;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 25px;
   border-radius: 10px;
   background-color: var(--bgSecondary);
   ${mobile({width: "75%"})}
 `;
 
-const Title = styled.h1`
+const Title = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+`;
+
+const CustomTitle = styled.h1`
   font-size: 24px;
   font-weight: 300;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-`;
-
-const Input = styled.input`
-  flex: 1;
-  min-width: 40%;
-  margin: 10px 0;
-  padding: 10px;
-`;
-
-const Button = styled.button`
-  width: 100%;
-  border: none;
-  padding: 10px 10px;
-  margin-top: 10px;
-  background-color: teal;
-  color: white;
-  cursor: pointer;
-  margin-bottom: 10px;
-
-  &:disabled {
-    color: green;
-    cursor: not-allowed;
-  }
-`;
-const Error = styled.span`
-  color: red;
-`;
-
-const Link = styled.a`
-  margin: 5px 0px;
-  font-size: 12px;
-  text-decoration: underline;
-  cursor: pointer;
-`;
+`
 
 const Login = () => {
     const dispatch = useDispatch();
-    const {isFetching} = useSelector((state) => state.user);
+    const {isFetching, currentUser} = useSelector((state) => state.user);
     const history = useHistory();
-    const {register, handleSubmit, formState: {errors}} = useForm();
 
-    const clickLogin = (data) => {
-        dispatch(login(data));
-    };
-
-    const onSubmitForm = (e) => {
-        e.preventDefault();
-        handleSubmit(clickLogin)();
+    const onSubmitForm = (values) => {
+        dispatch(login(values)).then(() => {
+            console.log("current user: ", currentUser);
+        });
     }
 
     return (
         <Container>
             <Wrapper>
-                <Title>SIGN IN</Title>
-                <Form>
-                    <Input {...register("email", {required: "Email is required!"})}
-                           placeholder="Email"
-                    />
-                    {
-                        errors.email && <Error>{errors.email.message}</Error>
-                    }
-                    <Input
-                        {...register("password", {required: "Password is required!"})}
-                        placeholder="Password"
-                        type="password"
-                    />
-                    {
-                        errors.password && <Error>{errors.password.message}</Error>
-                    }
-                    <Button onClick={onSubmitForm} disabled={isFetching}>
-                        LOGIN
-                    </Button>
-                    <Link onClick={() => history.replace("/register")}>CREATE A NEW ACCOUNT</Link>
+                <Title>
+                    <CustomTitle>SIGN IN</CustomTitle>
+                </Title>
+                <Form
+                    onFinish={onSubmitForm}
+                    name="login_form"
+                    size={"middle"}
+                >
+                    <Form.Item
+                        name="email"
+                        rules={[{required: true, message: 'Please input your Username!'}]}
+                    >
+                        <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="Email"/>
+                    </Form.Item>
+                    <Form.Item
+                        name="password"
+                        rules={[{required: true, message: 'Please input your Password!'}]}
+                    >
+                        <Input
+                            prefix={<LockOutlined className="site-form-item-icon"/>}
+                            type="password"
+
+                            placeholder="Password"
+                        />
+                    </Form.Item>
+                    <Form.Item className={"LoginButton"} style={{marginTop: "20px"}}>
+                        <Button disabled={isFetching} type="primary" htmlType="submit" block>
+                            Log in
+                        </Button>
+                        Or<Button onClick={() => history.replace("/register")} size={"small"} type="link">Register
+                        now!</Button>
+                    </Form.Item>
                 </Form>
             </Wrapper>
         </Container>

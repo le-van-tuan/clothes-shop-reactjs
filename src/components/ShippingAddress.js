@@ -19,6 +19,7 @@ const AddressItemContainer = styled(List.Item)`
   padding: 20px 20px;
   border-radius: 5px;
   background-color: var(--bgPrimary);
+  box-shadow: 0px 0px 3px rgb(0 0 0 / 18%);
 `
 
 const AddressItem = styled.div`

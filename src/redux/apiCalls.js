@@ -13,6 +13,16 @@ export const login = (user) => async (dispatch) => {
     }
 };
 
+export const register = (user) => async (dispatch) => {
+    try {
+        const response = await publicRequest.post("/auth/sign-up", user);
+        handleApiSuccess(dispatch, "Successfully register new account!");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to register account!");
+    }
+}
+
 export const getProfile = () => async (dispatch) => {
     try {
         const response = await privateRequest.get("/users/profile");
@@ -71,6 +81,51 @@ export const deleteShippingAddress = (id) => async (dispatch) => {
     }
 }
 
+/**
+ * ADMINISTRATOR
+ * @param dispatch
+ * @param error
+ * @param defaultMessage
+ */
+
+export const getCategories = () => async (dispatch) => {
+    try {
+        return await publicRequest.get("/products/categories");
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to fetch categories");
+    }
+}
+
+export const addCategory = (category) => async (dispatch) => {
+    try {
+        const response = await privateRequest.post("/admin/categories", category);
+        handleApiSuccess(dispatch, "Successfully add category");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to add category!");
+    }
+}
+
+export const updateCategory = (category) => async (dispatch) => {
+    try {
+        const response = await privateRequest.patch("/admin/categories/" + category.id, category);
+        handleApiSuccess(dispatch, "Category has been updated!");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to update category!");
+    }
+}
+
+export const deleteCategory = (id) => async (dispatch) => {
+    try {
+        const response = await privateRequest.delete("/admin/categories/" + id);
+        handleApiSuccess(dispatch, "Category has been deleted!");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to delete category!");
+    }
+}
+
 const handleApiSuccess = (dispatch, message) => {
     dispatch(addSuccess({message: message, timestamp: new Date().getTime()}));
 }
@@ -78,9 +133,11 @@ const handleApiSuccess = (dispatch, message) => {
 const handleApiError = (dispatch, error, defaultMessage) => {
     if (!error.response) {
         dispatch(addError({message: "Server is busy, try again later!", timestamp: new Date().getTime()}));
+    } else if (error && error.response && error.response.data) {
+        dispatch(addError(error.response.data));
     } else if (defaultMessage) {
         dispatch(addError({message: defaultMessage, timestamp: new Date().getTime()}));
     } else {
-        dispatch(addError(error && error.response && error.response.data || null));
+        dispatch(addError({message: "Server is busy, try again later!", timestamp: new Date().getTime()}));
     }
 };

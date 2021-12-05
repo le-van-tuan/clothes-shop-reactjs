@@ -6,7 +6,7 @@ import {mobile} from "../responsive";
 import {Link, useHistory} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {Avatar, Dropdown, Menu} from 'antd';
-import {LogoutOutlined, UserOutlined} from '@ant-design/icons';
+import {DashboardOutlined, LogoutOutlined, UserOutlined} from '@ant-design/icons';
 import {logOut} from "../redux/userRedux";
 import {useSnackbar} from "notistack";
 import {getProfile} from "../redux/apiCalls";
@@ -83,7 +83,9 @@ const Navbar = () => {
     const {enqueueSnackbar} = useSnackbar();
 
     useEffect(() => {
-        dispatch(getProfile());
+        if (currentUser) {
+            dispatch(getProfile());
+        }
     }, []);
 
     const onClickLogOut = (e) => {
@@ -94,10 +96,15 @@ const Navbar = () => {
     }
 
     const menu = (
-        <Menu>
+        <Menu theme={"light"}>
             <Menu.Item icon={<UserOutlined/>}>
                 <StyledLink to={"/profile"}>
                     Profile
+                </StyledLink>
+            </Menu.Item>
+            <Menu.Item danger icon={<DashboardOutlined/>}>
+                <StyledLink to={"/admin"}>
+                    Admin Dashboard
                 </StyledLink>
             </Menu.Item>
             <Menu.Item icon={<LogoutOutlined/>}>
@@ -118,17 +125,6 @@ const Navbar = () => {
             <Center>
             </Center>
             <Right>
-                <MenuItem hidden={!currentUser} title={"Profile"} key={"1"}>
-                        <span
-                            style={{
-                                marginRight: 5,
-                                fontSize: 14,
-                                fontWeight: "500"
-                            }}>Welcome, {profile && profile.name || "Yamee"}</span>
-                    <Dropdown trigger={['click', 'hover']} overlay={menu} placement="bottomCenter">
-                        <Avatar size={30} style={{backgroundColor: '#87d068'}} icon={<UserOutlined/>}/>
-                    </Dropdown>
-                </MenuItem>
                 <StyledLink to="/register">
                     <MenuItem key={"2"} hidden={currentUser != null}>REGISTER</MenuItem>
                 </StyledLink>
@@ -147,6 +143,17 @@ const Navbar = () => {
                         </Badge>
                     </MenuItem>
                 </StyledLink>
+                <MenuItem hidden={!currentUser} title={"Profile"} key={"1"}>
+                        <span
+                            style={{
+                                marginRight: 5,
+                                fontSize: 14,
+                                fontWeight: "500"
+                            }}>Welcome, {profile && profile.name || "Yamee"}</span>
+                    <Dropdown trigger={['click']} overlay={menu} placement="bottomLeft">
+                        <Avatar size={30} style={{backgroundColor: '#87d068'}} icon={<UserOutlined/>}/>
+                    </Dropdown>
+                </MenuItem>
             </Right>
         </Container>
     );

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import React, {useState} from "react";
 import {useSelector} from "react-redux";
-import {Avatar, Layout, Menu} from 'antd';
+import {Avatar, Layout, Menu, Typography} from 'antd';
 import {LaptopOutlined, UserOutlined} from "@ant-design/icons";
 import ProfileEditor from "../components/ProfileEditor";
 import ShippingAddress from "../components/ShippingAddress";
@@ -35,6 +35,7 @@ const InnerContainer = styled.div`
 `
 
 const {Content, Sider} = Layout;
+const {Text} = Typography;
 
 const Profile = () => {
     const {profile} = useSelector((state) => state.user);
@@ -46,7 +47,7 @@ const Profile = () => {
 
     return (
         <Container>
-            <Content style={{padding: '0 10%'}}>
+            <Content style={{padding: '0 8%'}}>
                 <Layout style={{height: '100%'}}>
                     <Sider width={200} collapsed={false} collapsible={false} reverseArrow={false}>
                         <Menu
@@ -57,9 +58,9 @@ const Profile = () => {
                             style={{height: '100%', borderRight: "unset"}}
                         >
                             <GeneralProfile>
-                                <Avatar size={40} style={{backgroundColor: '#87d068'}} icon={<UserOutlined/>}/>
+                                <Avatar size={36} style={{backgroundColor: '#87d068'}} icon={<UserOutlined/>}/>
                                 <ProfileNames>
-                                    <span>My Account</span>
+                                    <Text type="secondary">Administrator</Text>
                                     <h4 style={{marginTop: '7px'}}>{profile && profile.name || "Yamee"}</h4>
                                 </ProfileNames>
                             </GeneralProfile>

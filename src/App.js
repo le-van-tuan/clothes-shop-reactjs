@@ -1,4 +1,4 @@
-import {BrowserRouter, Redirect, Route, Switch} from "react-router-dom";
+import {BrowserRouter as Router, Redirect, Route, Switch} from "react-router-dom";
 import Home from "./pages/Home";
 import styled from "styled-components";
 import Navbar from "./components/Navbar";
@@ -16,6 +16,8 @@ import PrivateRoute from "./components/PrivateRoute";
 import Wishlist from "./pages/Wishlist";
 import Cart from "./pages/Cart";
 import {resetNotification} from "./redux/alertRedux";
+import NotFound from "./pages/NotFound";
+import BaseAdmin from "./pages/BaseAdmin";
 
 const Container = styled.div`
   width: 100%;
@@ -42,7 +44,7 @@ function App() {
     }
 
     return (
-        <BrowserRouter>
+        <Router>
             <SnackbarProvider maxSnack={3}
                               autoHideDuration={2000}
                               anchorOrigin={{vertical: "top", horizontal: "right"}}>
@@ -53,18 +55,20 @@ function App() {
                         <Route exact path={"/cart"} component={Cart}/>
                         <PrivateRoute exact path="/profile" component={Profile}/>
                         <PrivateRoute exact path="/wishlist" component={Wishlist}/>
+                        <PrivateRoute exact path="/admin" component={BaseAdmin}/>
                         <Route path="/login">
                             {currentUser ? <Redirect to="/"/> : <Login/>}
                         </Route>
                         <Route path="/register">
                             {currentUser ? <Redirect to="/"/> : <Register/>}
                         </Route>
+                        <Route component={NotFound}/>
                     </Switch>
                     <Footer/>
                     <AlertNotification/>
                 </Container>
             </SnackbarProvider>
-        </BrowserRouter>
+        </Router>
     );
 }
 
