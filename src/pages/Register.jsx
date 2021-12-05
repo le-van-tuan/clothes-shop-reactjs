@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import {mobile} from "../responsive";
 import {useState} from "react";
+import {useForm} from "react-hook-form";
 
 const Container = styled.div`
   flex: 1;
@@ -49,9 +50,7 @@ const Button = styled.button`
 
 const Register = () => {
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-
+    const {register, handleSubmit, formState: {errors}} = useForm();
 
     const clickRegister = () => {
 
@@ -62,11 +61,11 @@ const Register = () => {
             <Wrapper>
                 <Title>CREATE AN ACCOUNT</Title>
                 <Form>
-                    <Input autoComplete="off" placeholder="Full name"/>
-                    <Input autoComplete="off" placeholder="Email"/>
-                    <Input autoComplete="off" placeholder="Password"/>
-                    <Input autoComplete="none" placeholder="Confirm password" type={"password"}/>
-                    <Button onclick={clickRegister}>CREATE</Button>
+                    <Input placeholder="Full name"/>
+                    <Input {...register("email", {required: "Email is required!"})} placeholder="Email"/>
+                    <Input placeholder="Password"/>
+                    <Input placeholder="Confirm password" type={"password"}/>
+                    <Button onclick={clickRegister}>REGISTER</Button>
                 </Form>
             </Wrapper>
         </Container>

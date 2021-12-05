@@ -9,11 +9,14 @@ export const publicRequest = axios.create({
     baseURL: BASE_URL,
 });
 
-const user = JSON.parse(localStorage.getItem("persist:root"))?.user;
-const currentUser = user && JSON.parse(user).currentUser;
-const TOKEN = currentUser && currentUser['accessToken'] ? currentUser['accessToken'] : "";
-
 export const privateRequest = axios.create({
-    baseURL: BASE_URL,
-    header: {Authorization: `Bearer ${TOKEN}`},
+    baseURL: BASE_URL
 });
+
+privateRequest.interceptors.request.use((config) => {
+    const user = JSON.parse(localStorage.getItem("persist:root"))?.user;
+    const currentUser = user && JSON.parse(user).currentUser;
+    const TOKEN = currentUser && currentUser['accessToken'] ? currentUser['accessToken'] : "";
+    config.headers.Authorization = TOKEN ? `Bearer ${TOKEN}` : '';
+    return config;
+}, (error) => Promise.reject(error));

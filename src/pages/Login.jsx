@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import {mobile} from "../responsive";
-import {useSnackbar} from 'notistack';
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 import {useForm} from "react-hook-form";
@@ -68,17 +67,12 @@ const Link = styled.a`
 
 const Login = () => {
     const dispatch = useDispatch();
-    const {isFetching, error} = useSelector((state) => state.user);
-    const {enqueueSnackbar} = useSnackbar();
+    const {isFetching} = useSelector((state) => state.user);
     const history = useHistory();
     const {register, handleSubmit, formState: {errors}} = useForm();
 
     const clickLogin = (data) => {
-        login(dispatch, data).then(() => {
-            if (error) {
-                enqueueSnackbar(error.message, {variant: "error"});
-            }
-        });
+        dispatch(login(data));
     };
 
     const onSubmitForm = (e) => {
