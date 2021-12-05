@@ -11,11 +11,11 @@ import {useDispatch, useSelector} from "react-redux";
 import {useEffect, useState} from "react";
 import AlertNotification from "./components/AlertNotification";
 import {Spin} from "antd";
-import {clearError} from "./redux/errorRedux";
 import Profile from "./pages/Profile";
 import PrivateRoute from "./components/PrivateRoute";
 import Wishlist from "./pages/Wishlist";
 import Cart from "./pages/Cart";
+import {resetNotification} from "./redux/alertRedux";
 
 const Container = styled.div`
   width: 100%;
@@ -28,10 +28,10 @@ const Container = styled.div`
 function App() {
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
-    const user = useSelector((state) => state.user.currentUser);
+    const currentUser = useSelector((state) => state.user.currentUser);
 
     useEffect(() => {
-        dispatch(clearError());
+        dispatch(resetNotification());
         setLoading(false);
     }, []);
 
@@ -54,10 +54,10 @@ function App() {
                         <PrivateRoute exact path="/profile" component={Profile}/>
                         <PrivateRoute exact path="/wishlist" component={Wishlist}/>
                         <Route path="/login">
-                            {user ? <Redirect to="/"/> : <Login/>}
+                            {currentUser ? <Redirect to="/"/> : <Login/>}
                         </Route>
                         <Route path="/register">
-                            {user ? <Redirect to="/"/> : <Register/>}
+                            {currentUser ? <Redirect to="/"/> : <Register/>}
                         </Route>
                     </Switch>
                     <Footer/>

@@ -2,17 +2,17 @@ import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import userReducer from "./userRedux";
 import {FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE,} from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import errorRedux from "./errorRedux";
 import thunk from 'redux-thunk';
+import alertRedux from "./alertRedux";
 
 const persistConfig = {
     key: "root",
     version: 1,
     storage,
-    blacklist: ["error"]
+    blacklist: ["alert"]
 };
 
-const rootReducer = combineReducers({user: userReducer, error: errorRedux});
+const rootReducer = combineReducers({user: userReducer, alert: alertRedux});
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({

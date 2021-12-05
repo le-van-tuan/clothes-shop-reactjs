@@ -3,7 +3,7 @@ import {useEffect} from "react";
 import {useSnackbar} from "notistack";
 
 const AlertNotification = () => {
-    const {error} = useSelector((state) => state.error);
+    const {error, success} = useSelector((state) => state['alert']);
     const {enqueueSnackbar} = useSnackbar();
 
     useEffect(() => {
@@ -11,6 +11,12 @@ const AlertNotification = () => {
             enqueueSnackbar(error.message, {variant: "error"});
         }
     }, [error]);
+
+    useEffect(() => {
+        if (success && success.message) {
+            enqueueSnackbar(success.message, {variant: "success"});
+        }
+    }, [success]);
 
     return null;
 };
