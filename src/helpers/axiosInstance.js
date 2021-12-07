@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:8090/api/";
+export const BASE_URL = "http://localhost:8090/api/";
 
 axios.defaults.baseURL = BASE_URL;
 axios.defaults.timeout = 25000;

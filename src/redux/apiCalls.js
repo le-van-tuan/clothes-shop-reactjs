@@ -1,12 +1,14 @@
 import {getProfileFailed, getProfileSuccess, loginFailure, loginStart, loginSuccess} from "./userRedux";
 import {privateRequest, publicRequest} from "../helpers/axiosInstance";
 import {addError, addSuccess} from "./alertRedux";
+import {add, remove} from "./cartRedux";
 
 export const login = (user) => async (dispatch) => {
     dispatch(loginStart());
     try {
         const response = await publicRequest.post("/auth/login", user);
         dispatch(loginSuccess(response.data));
+        return response;
     } catch (error) {
         dispatch(loginFailure());
         handleApiError(dispatch, error);
@@ -88,6 +90,14 @@ export const deleteShippingAddress = (id) => async (dispatch) => {
  * @param defaultMessage
  */
 
+export const getUsers = () => async (dispatch) => {
+    try {
+        return await privateRequest.get("/admin/users");
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to get users");
+    }
+}
+
 export const getCategories = () => async (dispatch) => {
     try {
         return await publicRequest.get("/products/categories");
@@ -124,6 +134,79 @@ export const deleteCategory = (id) => async (dispatch) => {
     } catch (error) {
         handleApiError(dispatch, error, "Failed to delete category!");
     }
+}
+
+export const getProducts = () => async (dispatch) => {
+    try {
+        return await publicRequest.get("/products");
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to get products");
+    }
+}
+
+export const getNewArrivals = () => async (dispatch) => {
+    try {
+        return await publicRequest.get("/products/new-arrivals");
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to get products");
+    }
+}
+
+export const addProduct = (product) => async (dispatch) => {
+    try {
+        const formData = new FormData();
+        formData.append('thumbnail', product.thumbnail.fileList[0].originFileObj);
+        if (product['galleries'] && product['galleries'].fileList) {
+            [].concat(product['galleries'].fileList).forEach(img => {
+                formData.append('galleries', img.originFileObj);
+            });
+        }
+        delete product.thumbnail;
+        delete product.galleries;
+
+        formData.append("product", JSON.stringify(product));
+        const config = {
+            headers: {
+                'content-type': 'multipart/form-data'
+            }
+        }
+        const response = await privateRequest.post("/admin/products", formData, config);
+        handleApiSuccess(dispatch, "Successfully add new product");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to add product!");
+    }
+}
+
+export const deleteProduct = (id) => async (dispatch) => {
+    try {
+        const response = await privateRequest.delete("/admin/products/" + id);
+        handleApiSuccess(dispatch, "Product has been deleted!");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to delete category!");
+    }
+}
+
+
+export const publishProduct = (id) => async (dispatch) => {
+    try {
+        const response = await privateRequest.get("/admin/products/" + id + "/publish");
+        handleApiSuccess(dispatch, "Product has been published!");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to published product!");
+    }
+}
+
+export const addItemToCart = (item) => async (dispatch) => {
+    dispatch(add(item));
+    dispatch(addSuccess({message: "Product added to cart!", timestamp: new Date().getTime()}));
+}
+
+export const removeCartItem = (item) => async (dispatch) => {
+    dispatch(remove(item));
+    dispatch(addSuccess({message: "Product removed from cart!", timestamp: new Date().getTime()}));
 }
 
 const handleApiSuccess = (dispatch, message) => {

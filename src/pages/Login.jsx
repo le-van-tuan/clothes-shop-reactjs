@@ -2,7 +2,7 @@ import styled from "styled-components";
 import {mobile} from "../responsive";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
-import {login} from "../redux/apiCalls";
+import {getProfile, login} from "../redux/apiCalls";
 import {Button, Form, Input} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 
@@ -38,12 +38,14 @@ const CustomTitle = styled.h1`
 
 const Login = () => {
     const dispatch = useDispatch();
-    const {isFetching, currentUser} = useSelector((state) => state.user);
+    const {isFetching} = useSelector((state) => state.user);
     const history = useHistory();
 
     const onSubmitForm = (values) => {
-        dispatch(login(values)).then(() => {
-            console.log("current user: ", currentUser);
+        dispatch(login(values)).then((r) => {
+            if (r && r.response) {
+                dispatch(getProfile());
+            }
         });
     }
 

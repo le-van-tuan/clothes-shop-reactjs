@@ -4,6 +4,7 @@ import {FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, RE
 import storage from "redux-persist/lib/storage";
 import thunk from 'redux-thunk';
 import alertRedux from "./alertRedux";
+import cartRedux from "./cartRedux";
 
 const persistConfig = {
     key: "root",
@@ -12,7 +13,7 @@ const persistConfig = {
     blacklist: ["alert"]
 };
 
-const rootReducer = combineReducers({user: userReducer, alert: alertRedux});
+const rootReducer = combineReducers({user: userReducer, alert: alertRedux, cart: cartRedux});
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({

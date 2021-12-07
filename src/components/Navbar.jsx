@@ -5,11 +5,10 @@ import styled from "styled-components";
 import {mobile} from "../responsive";
 import {Link, useHistory} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {Avatar, Dropdown, Menu} from 'antd';
+import {Avatar, Dropdown, Menu, Tooltip} from 'antd';
 import {DashboardOutlined, LogoutOutlined, UserOutlined} from '@ant-design/icons';
 import {logOut} from "../redux/userRedux";
 import {useSnackbar} from "notistack";
-import {getProfile} from "../redux/apiCalls";
 
 const Container = styled.div`
   height: 60px;
@@ -77,16 +76,17 @@ const StyledLink = styled(Link)`
 const Navbar = () => {
     const {currentUser} = useSelector((state) => state.user);
     const {profile} = useSelector((state) => state.user);
+    const {items} = useSelector((state) => state.cart);
 
     const dispatch = useDispatch();
     const history = useHistory();
     const {enqueueSnackbar} = useSnackbar();
 
     useEffect(() => {
-        if (currentUser) {
-            dispatch(getProfile());
-        }
-    }, []);
+        // if (currentUser) {
+        //     dispatch(getProfile());
+        // }
+    }, [currentUser]);
 
     const onClickLogOut = (e) => {
         e.preventDefault();
@@ -102,11 +102,13 @@ const Navbar = () => {
                     Profile
                 </StyledLink>
             </Menu.Item>
-            <Menu.Item danger icon={<DashboardOutlined/>}>
-                <StyledLink to={"/admin"}>
-                    Admin Dashboard
-                </StyledLink>
-            </Menu.Item>
+            {
+                currentUser && currentUser.role === "ROLE_ADMIN" && (<Menu.Item danger icon={<DashboardOutlined/>}>
+                    <StyledLink to={"/admin"}>
+                        Admin Dashboard
+                    </StyledLink>
+                </Menu.Item>)
+            }
             <Menu.Item icon={<LogoutOutlined/>}>
                 <span onClick={onClickLogOut}>
                     Logout
@@ -132,16 +134,20 @@ const Navbar = () => {
                     <MenuItem key={"3"} hidden={currentUser != null}>SIGN IN</MenuItem>
                 </StyledLink>
                 <StyledLink to="/wishlist">
-                    <MenuItem key={"4"} hidden={!currentUser} title={"Wishlist"}>
-                        <FavoriteBorder/>
-                    </MenuItem>
+                    <Tooltip title="Your wishlist" overlayInnerStyle={{fontSize: 12}}>
+                        <MenuItem key={"4"} hidden={!currentUser} title={"Wishlist"}>
+                            <FavoriteBorder/>
+                        </MenuItem>
+                    </Tooltip>
                 </StyledLink>
                 <StyledLink to="/cart">
-                    <MenuItem key={"5"} title={"Cart"}>
-                        <Badge badgeContent={3} color="error">
-                            <LocalMall/>
-                        </Badge>
-                    </MenuItem>
+                    <Tooltip title="Cart" overlayInnerStyle={{fontSize: 12}}>
+                        <MenuItem key={"5"} title={"Cart"}>
+                            <Badge showZero={false} badgeContent={items && items.length || 0} color="error">
+                                <LocalMall/>
+                            </Badge>
+                        </MenuItem>
+                    </Tooltip>
                 </StyledLink>
                 <MenuItem hidden={!currentUser} title={"Profile"} key={"1"}>
                         <span

@@ -45,9 +45,9 @@ function App() {
 
     return (
         <Router>
-            <SnackbarProvider maxSnack={3}
+            <SnackbarProvider maxSnack={2}
                               autoHideDuration={2000}
-                              anchorOrigin={{vertical: "top", horizontal: "right"}}>
+                              anchorOrigin={{vertical: "top", horizontal: "center"}}>
                 <Container>
                     <Navbar/>
                     <Switch>
