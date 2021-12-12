@@ -136,6 +136,34 @@ export const deleteCategory = (id) => async (dispatch) => {
     }
 }
 
+export const getAllAttributes = () => async (dispatch) => {
+    try {
+        return await privateRequest.get("/admin/attributes");
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to get attributes");
+    }
+}
+
+export const addAttribute = (name) => async (dispatch) => {
+    try {
+        const response = await privateRequest.post("/admin/attributes", {name});
+        handleApiSuccess(dispatch, "Attribute has been added!");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to add attribute");
+    }
+}
+
+export const addAttributeValue = (attributeId, value) => async (dispatch) => {
+    try {
+        const response = await privateRequest.post("/admin/attributes/values/" + attributeId, {value});
+        handleApiSuccess(dispatch, "Attribute value has been added!");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to add attribute value");
+    }
+}
+
 export const getProducts = () => async (dispatch) => {
     try {
         return await publicRequest.get("/products");

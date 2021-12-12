@@ -39,7 +39,7 @@ const Home = () => {
 
     useEffect(() => {
         dispatch(getNewArrivals()).then((res) => {
-            setNewArrivals(res.data);
+            setNewArrivals(res && res.data || []);
         });
     }, []);
 
