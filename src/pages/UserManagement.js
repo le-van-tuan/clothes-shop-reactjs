@@ -1,9 +1,9 @@
 import styled from "styled-components";
-import {Avatar, Table, Tag} from "antd";
+import {Avatar, Popconfirm, Switch, Table, Tag} from "antd";
 import {useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import {UserOutlined} from "@ant-design/icons";
-import {getUsers} from "../redux/apiCalls";
+import {getUsers, toggleUserStatus} from "../redux/apiCalls";
 
 const Container = styled.div`
   display: flex;
@@ -15,10 +15,18 @@ const UserManagement = () => {
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
+        refreshUsers();
+    }, []);
+
+    const refreshUsers = () => {
         dispatch(getUsers()).then((r) => {
             setUsers(r.data);
         });
-    }, []);
+    }
+
+    const onToggleUserStatus = (record) => {
+        dispatch(toggleUserStatus(record.id)).then(() => refreshUsers());
+    }
 
     const userColumns = [
         {
@@ -58,6 +66,26 @@ const UserManagement = () => {
                     {role}
                 </Tag>
             )
+        },
+        {
+            title: "Status",
+            key: 'enabled',
+            dataIndex: "enabled",
+            width: 150,
+            render: (enabled, record) => {
+                return <Popconfirm disabled={record.role === "ROLE_ADMIN"}
+                                   title={"Are you sure you want to " + (enabled ? "disable" : "enable") + " this user?"}
+                                   okText="Yes"
+                                   onConfirm={() => onToggleUserStatus(record)}
+                                   cancelText="No"
+                >
+                    <Switch
+                        checked={enabled}
+                        disabled={record.role === "ROLE_ADMIN"}
+                        checkedChildren="Enabled"
+                        unCheckedChildren="Disabled"/>
+                </Popconfirm>
+            }
         },
         {
             title: 'Created Time',

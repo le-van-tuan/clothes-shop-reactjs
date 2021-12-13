@@ -98,6 +98,14 @@ export const getUsers = () => async (dispatch) => {
     }
 }
 
+export const toggleUserStatus = (id) => async (dispatch) => {
+    try {
+        return await privateRequest.get("/admin/users/" + id + "/toggle-status");
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to change user status");
+    }
+}
+
 export const getCategories = () => async (dispatch) => {
     try {
         return await publicRequest.get("/products/categories");
@@ -166,7 +174,7 @@ export const addAttributeValue = (attributeId, value) => async (dispatch) => {
 
 export const getProducts = () => async (dispatch) => {
     try {
-        return await publicRequest.get("/products");
+        return await privateRequest.get("/admin/products");
     } catch (error) {
         handleApiError(dispatch, error, "Failed to get products");
     }
@@ -174,7 +182,7 @@ export const getProducts = () => async (dispatch) => {
 
 export const getNewArrivals = () => async (dispatch) => {
     try {
-        return await publicRequest.get("/products/new-arrivals");
+        return await publicRequest.get("/products/new-arrivals?size=5");
     } catch (error) {
         handleApiError(dispatch, error, "Failed to get products");
     }
@@ -206,6 +214,40 @@ export const addProduct = (product) => async (dispatch) => {
     }
 }
 
+export const addProductVariant = (variant) => async (dispatch) => {
+    try {
+        const formData = new FormData();
+        if (variant['galleries'] && variant['galleries'].fileList) {
+            [].concat(variant['galleries'].fileList).forEach(img => {
+                formData.append('galleries', img.originFileObj);
+            });
+        }
+        delete variant.galleries;
+
+        formData.append("variant", JSON.stringify(variant));
+        const config = {
+            headers: {
+                'content-type': 'multipart/form-data'
+            }
+        }
+        const response = await privateRequest.post("/admin/products/variants", formData, config);
+        handleApiSuccess(dispatch, "Successfully add new product variant");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to add product variant!");
+    }
+}
+
+export const deleteProductVariant = (id) => async (dispatch) => {
+    try {
+        const response = await privateRequest.delete("/admin/products/variants/" + id);
+        handleApiSuccess(dispatch, "Variant has been deleted!");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to delete variant!");
+    }
+}
+
 export const deleteProduct = (id) => async (dispatch) => {
     try {
         const response = await privateRequest.delete("/admin/products/" + id);
@@ -227,6 +269,12 @@ export const publishProduct = (id) => async (dispatch) => {
     }
 }
 
+/**
+ * Carts
+ * @param item
+ * @returns {(function(*): Promise<void>)|*}
+ */
+
 export const addItemToCart = (item) => async (dispatch) => {
     dispatch(add(item));
     dispatch(addSuccess({message: "Product added to cart!", timestamp: new Date().getTime()}));
@@ -236,6 +284,37 @@ export const removeCartItem = (item) => async (dispatch) => {
     dispatch(remove(item));
     dispatch(addSuccess({message: "Product removed from cart!", timestamp: new Date().getTime()}));
 }
+
+/**
+ * Wishlist
+ * @returns {(function(*): Promise<void>)|*}
+ * @param product
+ */
+export const addItem2Wishlist = (product) => async (dispatch) => {
+    try {
+        const response = await privateRequest.get("/users/products/" + product.id + "/favorite");
+        handleApiSuccess(dispatch, "Add item to wishlist");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to add item to wishlist!");
+    }
+}
+
+export const removeWishlistItem = (id) => async (dispatch) => {
+    try {
+        const response = await privateRequest.delete("/users/products/" + id + "/favorite");
+        handleApiSuccess(dispatch, "Remove item from wishlist");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to remove item from wishlist!");
+    }
+}
+
+/**
+ * API handler
+ * @param dispatch
+ * @param message
+ */
 
 const handleApiSuccess = (dispatch, message) => {
     dispatch(addSuccess({message: message, timestamp: new Date().getTime()}));

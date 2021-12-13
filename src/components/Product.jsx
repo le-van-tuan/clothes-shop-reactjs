@@ -4,7 +4,7 @@ import styled from "styled-components";
 import {BASE_URL} from "../helpers/axiosInstance";
 import {Image} from 'antd';
 import {useDispatch} from "react-redux";
-import {addItemToCart} from "../redux/apiCalls";
+import {addItem2Wishlist, addItemToCart} from "../redux/apiCalls";
 
 const Info = styled.div`
   opacity: 0;
@@ -78,6 +78,10 @@ const Product = ({item}) => {
         dispatch(addItemToCart(item));
     }
 
+    const onAddWishlist = () => {
+        dispatch(addItem2Wishlist(item));
+    }
+
     return (
         <Container>
             <CustomImage width={"100%"} height={"100%"} src={getThumbnail(item)}/>
@@ -89,7 +93,7 @@ const Product = ({item}) => {
                     <VisibilityIcon/>
                 </Icon>
                 <Icon>
-                    <FavoriteBorderOutlined/>
+                    <FavoriteBorderOutlined onClick={onAddWishlist}/>
                 </Icon>
             </Info>
         </Container>

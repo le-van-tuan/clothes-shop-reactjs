@@ -1,14 +1,26 @@
 import styled from "styled-components";
-import {Badge, Button, Image, Popconfirm, Space, Table, Tooltip} from "antd";
+import {Badge, Button, Image, List, Popconfirm, Space, Table, Tooltip} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {useEffect, useState} from "react";
 import ProductForm from "../components/ProductForm";
 import {useDispatch} from "react-redux";
-import {addProduct, deleteProduct, getProducts, publishProduct} from "../redux/apiCalls";
+import {
+    addProduct,
+    addProductVariant,
+    deleteProduct,
+    deleteProductVariant,
+    getProducts,
+    publishProduct
+} from "../redux/apiCalls";
 import {BASE_URL} from "../helpers/axiosInstance";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PublishIcon from '@mui/icons-material/Publish';
+import {groupBy} from "../helpers/utils";
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import VariantForm from "../components/VariantForm";
+import CurrencyFormat from "react-currency-format";
+
 
 const Container = styled.div`
   display: flex;
@@ -28,6 +40,8 @@ const ProductManagement = () => {
 
     const [products, setProducts] = useState([]);
     const [productFormVisible, setProductFormVisible] = useState(false);
+    const [productVariantFormVisible, setProductVariantFormVisible] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState({});
 
     useEffect(() => {
         refreshProducts();
@@ -99,6 +113,18 @@ const ProductManagement = () => {
             ),
         },
         {
+            title: 'Variants',
+            width: 120,
+            align: "right",
+            dataIndex: "variants",
+            key: 'variants',
+            render: (variants, record) => (
+                <span>
+                    {variants.length}
+                </span>
+            ),
+        },
+        {
             title: 'Created Time',
             width: 180,
             dataIndex: 'createdAt',
@@ -124,8 +150,14 @@ const ProductManagement = () => {
                                 icon={<DeleteIcon sx={{color: "red"}} fontSize={"small"}/>}/>
                     </Popconfirm>
                     <Tooltip title="Publish" overlayInnerStyle={{fontSize: 12}}>
-                        <Button onClick={() => onPublishProduct(record)} disabled={record.deleted} type="text" shape={"default"}
+                        <Button onClick={() => onPublishProduct(record)} disabled={record.deleted} type="text"
+                                shape={"default"}
                                 icon={<PublishIcon color={"primary"} fontSize={"small"}/>}/>
+                    </Tooltip>
+                    <Tooltip title="Add Variant" overlayInnerStyle={{fontSize: 12}}>
+                        <Button onClick={() => onPrepareAddVariant(record)} disabled={record.deleted} type="text"
+                                shape={"default"}
+                                icon={<AddBoxIcon color={"primary"} fontSize={"small"}/>}/>
                     </Tooltip>
                 </Space>
             ),
@@ -139,6 +171,91 @@ const ProductManagement = () => {
         });
     }
 
+    const onCreateVariant = (values) => {
+        setProductVariantFormVisible(false);
+        values.productId = selectedProduct.id;
+        dispatch(addProductVariant(values)).then(() => refreshProducts());
+    }
+
+    const onPrepareAddVariant = (record) => {
+        setSelectedProduct(record);
+        setProductVariantFormVisible(true);
+    }
+
+    const onDeleteVariant = (record) => {
+        dispatch(deleteProductVariant(record.id)).then(() => refreshProducts());
+    }
+
+    const variantColumns = [
+        {title: 'Name', dataIndex: 'variantName', key: 'variantName'},
+        {title: 'Stock', dataIndex: 'stock', key: 'stock', width: 100},
+        {
+            title: 'Cost',
+            dataIndex: 'cost',
+            width: 150,
+            key: 'cost',
+            align: "right",
+            render: (value) => <CurrencyFormat decimalScale={0} prefix={"$"} value={value} displayType={'text'}
+                                               thousandSeparator={true}/>
+        },
+        {
+            title: 'Price',
+            align: "right",
+            width: 150,
+            dataIndex: 'price',
+            key: 'price',
+            render: (value) => <CurrencyFormat decimalScale={0} prefix={"$"} value={value} displayType={'text'}
+                                               thousandSeparator={true}/>
+        },
+        {
+            title: 'Action',
+            dataIndex: 'operation',
+            width: 150,
+            key: 'operation',
+            render: (value, record) => (
+                <Space size="small">
+                    <Button type="text" shape={"default"} size={"small"}
+                            icon={<EditIcon fontSize={"small"}/>}/>
+                    <Popconfirm title="Are you sure to delete this variant?"
+                                okText="Yes"
+                                onConfirm={() => onDeleteVariant(record)}
+                                cancelText="No"
+                    ><Button type="text" danger shape={"default"} size={"small"}
+                             icon={<DeleteIcon fontSize={"small"}/>}/></Popconfirm>
+                </Space>
+            ),
+        },
+    ]
+
+    const nestedRowRenderer = (record) => {
+        let groups = groupBy(record['specifications'], "name", "value");
+        const specs = Object.keys(groups).map(function (key) {
+            return {key, values: groups[key].join(", ")};
+        });
+        return (
+            <Space style={{display: "flex", flex: 1}} direction={"vertical"} size={"middle"}>
+                <div>
+                    <span>Descriptions: {record.description}</span>
+                </div>
+                <div>
+                    <List
+                        style={{flex: 1}}
+                        size="small"
+                        header={<b>Specifications</b>}
+                        dataSource={specs}
+                        locale={{emptyText: "No specifications"}}
+                        renderItem={item => <List.Item>
+                            <span>{item.key}: {item.values}</span>
+                        </List.Item>}
+                    />
+                </div>
+                <h4>Variants:</h4>
+                <Table locale={{emptyText: "No variants"}} size={"small"} columns={variantColumns} pagination={false} dataSource={record.variants}/>
+            </Space>
+        )
+    }
+
+
     return (
         <Container>
             <Actions>
@@ -149,10 +266,14 @@ const ProductManagement = () => {
             <Table style={{flex: 1}}
                    rowKey={"id"}
                    dataSource={products}
+                   expandable={{expandedRowRender: nestedRowRenderer}}
                    columns={generalProductColumns}/>
             <ProductForm visible={productFormVisible}
                          onCreate={onSubmitProductForm}
                          onCancel={() => setProductFormVisible(false)}/>
+            <VariantForm visible={productVariantFormVisible}
+                         onCreate={onCreateVariant}
+                         onCancel={() => setProductVariantFormVisible(false)}/>
         </Container>
     );
 };

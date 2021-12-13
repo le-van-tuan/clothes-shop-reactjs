@@ -1,6 +1,6 @@
 import {Badge} from "@material-ui/core";
 import {FavoriteBorder, LocalMall} from "@material-ui/icons";
-import React, {useEffect} from "react";
+import React from "react";
 import styled from "styled-components";
 import {mobile} from "../responsive";
 import {Link, useHistory} from "react-router-dom";
@@ -82,14 +82,7 @@ const Navbar = () => {
     const history = useHistory();
     const {enqueueSnackbar} = useSnackbar();
 
-    useEffect(() => {
-        // if (currentUser) {
-        //     dispatch(getProfile());
-        // }
-    }, [currentUser]);
-
-    const onClickLogOut = (e) => {
-        e.preventDefault();
+    const onClickLogOut = () => {
         dispatch(logOut());
         enqueueSnackbar("You has been logged out.", {variant: "success"});
         history.replace("/");
@@ -109,10 +102,8 @@ const Navbar = () => {
                     </StyledLink>
                 </Menu.Item>)
             }
-            <Menu.Item icon={<LogoutOutlined/>}>
-                <span onClick={onClickLogOut}>
-                    Logout
-                </span>
+            <Menu.Item onClick={onClickLogOut} icon={<LogoutOutlined/>}>
+                Logout
             </Menu.Item>
         </Menu>
     );

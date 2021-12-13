@@ -1,8 +1,7 @@
-import {Button, Divider, Form, Input, Modal, Select, Space, Upload} from "antd";
+import {Button, Divider, Form, Input, InputNumber, Modal, Select, Space, Upload} from "antd";
 import {useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import {addAttribute, addAttributeValue, getAllAttributes, getCategories} from "../redux/apiCalls";
-import TextArea from "antd/lib/input/TextArea";
+import {addAttribute, addAttributeValue, getAllAttributes} from "../redux/apiCalls";
 import {MinusCircleOutlined, PlusOutlined} from '@ant-design/icons';
 import {addError} from "../redux/alertRedux";
 
@@ -16,20 +15,16 @@ const productModel = {
 
 const {Option} = Select;
 
-const ProductForm = ({visible, onCreate, onCancel, initialValue = productModel}) => {
+const VariantForm = ({visible, onCreate, onCancel, initialValue = productModel}) => {
     const [form] = Form.useForm();
     const dispatch = useDispatch();
 
-    const [categories, setCategories] = useState([]);
     const [attribute, setAttribute] = useState({attributes: [], attributeValues: {}, values: []});
     const [attributeName, setAttributeName] = useState("");
     const [attributeValue, setAttributeValue] = useState("");
     const [selectedAttributeName, setSelectedAttributeName] = useState(0);
 
     useEffect(() => {
-        dispatch(getCategories()).then((r) => {
-            setCategories(r.data);
-        });
         refreshAttributes();
     }, []);
 
@@ -100,9 +95,9 @@ const ProductForm = ({visible, onCreate, onCancel, initialValue = productModel})
 
     return (
         <Modal
-            destroyOnClose={true}
+            destroyOnClose={false}
             visible={visible}
-            title={initialValue.id ? "Update Product" : "Add Product"}
+            title={initialValue.id ? "Update Variant" : "Add Variant"}
             okText={initialValue.id ? "Update" : "Add"}
             cancelText="Cancel"
             onCancel={onSelfCancel}
@@ -123,36 +118,46 @@ const ProductForm = ({visible, onCreate, onCancel, initialValue = productModel})
                 layout="horizontal"
                 name="form_in_modal"
             >
-                <Form.Item name={"id"} noStyle initialValue={initialValue.id}>
-                    <Input type="hidden"/>
-                </Form.Item>
                 <Form.Item
                     name="name"
                     shouldUpdate={true}
                     initialValue={initialValue.name}
                     label="Name"
-                    rules={[{required: true, message: 'Please input name'}]}
+                    rules={[{required: false}]}
                 >
-                    <Input placeholder={"Name"}/>
+                    <Input placeholder={"Variant name"}/>
                 </Form.Item>
-                <Form.Item hasFeedback
-                           label="Category"
-                           name={"category"}
-                           required
-                           rules={[{required: true, message: 'Please select category!'}]}>
-                    <Select placeholder={"Category"}>
-                        {categories.map(c => <Option key={c.id} value={c.id}>{c.name}</Option>)}
-                    </Select>
+                <Form.Item label={"Prices"}>
+                    <Space>
+                        <Form.Item
+                            label="Cost"
+                            name={"cost"}
+                            required
+                            rules={[{required: true, message: 'Please input cost!'}]}>
+                            <InputNumber formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                         parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                            />
+                        </Form.Item>
+                        <Form.Item
+                            label="Price"
+                            name={"price"}
+                            required
+                            rules={[{required: true, message: 'Please input price!'}]}>
+                            <InputNumber formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                         parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                            />
+                        </Form.Item>
+                        <Form.Item
+                            label="Stock Quantity"
+                            name={"stock"}
+                            required
+                            rules={[{required: true, message: 'Please input stock!'}]}>
+                            <InputNumber min={1}/>
+                        </Form.Item>
+                    </Space>
                 </Form.Item>
-                <Form.Item
-                    name="description"
-                    shouldUpdate={true}
-                    label="Description"
-                >
-                    <TextArea placeholder={"description"}/>
-                </Form.Item>
-                <Form.Item label={"Specifications"}>
-                    <Form.List name="specifications">
+                <Form.Item label={"Options"}>
+                    <Form.List name="options">
                         {(fields, {add, remove}) => (
                             <>
                                 {fields.map(field => (
@@ -236,30 +241,12 @@ const ProductForm = ({visible, onCreate, onCancel, initialValue = productModel})
 
                                 <Form.Item>
                                     <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined/>}>
-                                        Add Specification
+                                        Add Option
                                     </Button>
                                 </Form.Item>
                             </>
                         )}
                     </Form.List>
-                </Form.Item>
-
-                <Form.Item rules={[{required: true, message: 'Please select a thumbnail!'}]}
-                           shouldUpdate={true}
-                           label="Thumbnail"
-                           name={"thumbnail"}>
-                    <Upload
-                        beforeUpload={onBeforeUpload}
-                        accept={".png,.jpeg,.jpg"}
-                        onPreview={onPreview}
-                        maxCount={1}
-                        listType="picture-card"
-                    >
-                        <div>
-                            <PlusOutlined/>
-                            <div style={{marginTop: 8}}>Upload</div>
-                        </div>
-                    </Upload>
                 </Form.Item>
                 <Form.Item shouldUpdate={true} label="Galleries" name={"galleries"}>
                     <Upload
@@ -280,4 +267,4 @@ const ProductForm = ({visible, onCreate, onCancel, initialValue = productModel})
     );
 }
 
-export default ProductForm;
+export default VariantForm;
