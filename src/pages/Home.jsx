@@ -16,11 +16,7 @@ const Section = styled.div`
   display: flex;
   flex-direction: column;
   margin: 30px 150px;
-  font-size: 24px;
   position: relative;
-  font-family: Quicksand, sans-serif;
-  font-weight: 600;
-  letter-spacing: 0.15em;
 `
 
 const ProductContainer = styled.div`
@@ -30,6 +26,13 @@ const ProductContainer = styled.div`
   justify-content: space-evenly;
   flex: 1;
 `;
+
+const Title = styled.p`
+  font-family: Quicksand, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  font-size: 24px;
+`
 
 const Home = () => {
 
@@ -47,7 +50,7 @@ const Home = () => {
         <Container>
             <Section>
                 <div style={{justifyContent: "center", display: "flex"}}>
-                    <p>NEW ARRIVALS</p>
+                    <Title>NEW ARRIVALS</Title>
                 </div>
                 <ProductContainer>
                     {newArrivals.map((item) => <Product item={item} key={item.id}/>)}
@@ -55,7 +58,7 @@ const Home = () => {
             </Section>
             <Section>
                 <div style={{justifyContent: "center", display: "flex"}}>
-                    <p>BEST SELLERS</p>
+                    <Title>BEST SELLERS</Title>
                 </div>
                 <ProductContainer>
                     {newArrivals.map((item) => <Product item={item} key={item.id}/>)}

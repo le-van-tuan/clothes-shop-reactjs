@@ -8,6 +8,7 @@ const Container = styled.div`
   margin-top: 0.1px;
   background-color: var(--bgSecondary);
   box-shadow: 0 3px 2px 3px gray;
+  padding-bottom: 7px;
   ${mobile({flexDirection: "column"})}
 `;
 

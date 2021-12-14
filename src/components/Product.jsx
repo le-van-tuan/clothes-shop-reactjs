@@ -1,62 +1,40 @@
-import {FavoriteBorderOutlined, ShoppingCartOutlined,} from "@material-ui/icons";
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import styled from "styled-components";
+import {FavoriteBorderOutlined, ShoppingCartOutlined} from "@material-ui/icons";
 import {BASE_URL} from "../helpers/axiosInstance";
-import {Image} from 'antd';
+import {Card, Tooltip} from 'antd';
 import {useDispatch} from "react-redux";
 import {addItem2Wishlist, addItemToCart} from "../redux/apiCalls";
+import {useHistory} from "react-router-dom";
+import styled from "styled-components";
 
-const Info = styled.div`
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.2);
-  z-index: 3;
+const {Meta} = Card;
+
+const Footer = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.5s ease;
-  cursor: pointer;
-`;
-
-const Container = styled.div`
   flex: 1;
-  margin: 5px;
-  min-width: 200px;
-  max-width: 250px;
-  border-radius: 3px;
-  box-shadow: 0px 0px 1px rgb(0 0 0 / 18%);
-  height: 350px;
-  display: flex;
+  flex-direction: row;
+  margin-top: 15px;
   align-items: center;
-  justify-content: center;
-  background-color: white;
-  position: relative;
-  overflow: hidden;
+`;
 
-  &:hover ${Info} {
-    opacity: 1;
+const CustomCard = styled(Card)`
+  transition: box-shadow 0.3s, border-color 0.3s;
+
+  &:hover {
+    border-color: transparent;
+    box-shadow: 5px 8px 24px 5px rgba(121, 123, 129, 0.6)
   }
-`;
-
-const CustomImage = styled(Image)`
-  z-index: 2;
-  object-fit: contain;
-`;
+`
 
 const Icon = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background-color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 10px;
   transition: all 0.5s ease;
+  cursor: pointer;
 
   &:hover {
     background-color: #e9f5f5;
@@ -64,11 +42,18 @@ const Icon = styled.div`
   }
 `;
 
+const Price = styled.div`
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  font-weight: bold;
+`
+
 const Product = ({item}) => {
-
     const dispatch = useDispatch();
+    const history = useHistory();
 
-    const getThumbnail = (item) => {
+    const getThumbnail = () => {
         if (!item) return null;
         const thumbnail = [].concat(item.images).find(img => img.type === "THUMBNAIL");
         return BASE_URL + "products/images/" + thumbnail.url;
@@ -82,21 +67,39 @@ const Product = ({item}) => {
         dispatch(addItem2Wishlist(item));
     }
 
+    const onClickViewDetail = () => {
+        history.push("/products/" + item.id);
+    }
+
+    const getItemPrice = () => {
+        if (item.variants.length) {
+            return item.variants[0]['price'];
+        }
+        return 0;
+    }
+
     return (
-        <Container>
-            <CustomImage width={"100%"} height={"100%"} src={getThumbnail(item)}/>
-            <Info>
-                <Icon>
-                    <ShoppingCartOutlined onClick={onClickAddItemToCart}/>
-                </Icon>
-                <Icon>
-                    <VisibilityIcon/>
-                </Icon>
-                <Icon>
-                    <FavoriteBorderOutlined onClick={onAddWishlist}/>
-                </Icon>
-            </Info>
-        </Container>
+        <CustomCard
+            style={{width: 250}}
+            cover={<img style={{cursor: "pointer"}} onClick={onClickViewDetail} alt="example"
+                        src={getThumbnail()}/>}>
+            <Meta title={item.name}/>
+            <Footer>
+                <Tooltip title={"Add to Wishlist"}>
+                    <Icon>
+                        <FavoriteBorderOutlined onClick={onAddWishlist}/>
+                    </Icon>
+                </Tooltip>
+                <Price>
+                    <div>${getItemPrice()}</div>
+                </Price>
+                <Tooltip title={"Add to Cart"}>
+                    <Icon>
+                        <ShoppingCartOutlined onClick={onClickAddItemToCart}/>
+                    </Icon>
+                </Tooltip>
+            </Footer>
+        </CustomCard>
     );
 };
 

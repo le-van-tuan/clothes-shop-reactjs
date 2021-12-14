@@ -16,7 +16,7 @@ import {BASE_URL} from "../helpers/axiosInstance";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PublishIcon from '@mui/icons-material/Publish';
-import {groupBy} from "../helpers/utils";
+import {getReadableSpecifications, groupBy} from "../helpers/utils";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import VariantForm from "../components/VariantForm";
 import CurrencyFormat from "react-currency-format";
@@ -228,10 +228,7 @@ const ProductManagement = () => {
     ]
 
     const nestedRowRenderer = (record) => {
-        let groups = groupBy(record['specifications'], "name", "value");
-        const specs = Object.keys(groups).map(function (key) {
-            return {key, values: groups[key].join(", ")};
-        });
+        const readableSpec = getReadableSpecifications(record['specifications']);
         return (
             <Space style={{display: "flex", flex: 1}} direction={"vertical"} size={"middle"}>
                 <div>
@@ -242,7 +239,7 @@ const ProductManagement = () => {
                         style={{flex: 1}}
                         size="small"
                         header={<b>Specifications</b>}
-                        dataSource={specs}
+                        dataSource={readableSpec}
                         locale={{emptyText: "No specifications"}}
                         renderItem={item => <List.Item>
                             <span>{item.key}: {item.values}</span>

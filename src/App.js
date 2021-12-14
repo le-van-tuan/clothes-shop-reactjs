@@ -18,6 +18,7 @@ import Cart from "./pages/Cart";
 import {resetNotification} from "./redux/alertRedux";
 import NotFound from "./pages/NotFound";
 import BaseAdmin from "./pages/BaseAdmin";
+import ProductDetails from "./pages/ProductDetails";
 
 const Container = styled.div`
   width: 100%;
@@ -56,6 +57,7 @@ function App() {
                         <PrivateRoute exact path="/profile" component={Profile}/>
                         <PrivateRoute exact path="/wishlist" component={Wishlist}/>
                         <PrivateRoute exact path="/admin" component={BaseAdmin}/>
+                        <Route path={"/products/:id"} component={ProductDetails}/>
                         <Route path="/login">
                             {currentUser ? <Redirect to="/"/> : <Login/>}
                         </Route>

@@ -188,6 +188,14 @@ export const getNewArrivals = () => async (dispatch) => {
     }
 }
 
+export const getProductDetail = (id) => async (dispatch) => {
+    try {
+        return await publicRequest.get("/products/" + id);
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to get product detail");
+    }
+}
+
 export const addProduct = (product) => async (dispatch) => {
     try {
         const formData = new FormData();
