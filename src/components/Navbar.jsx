@@ -9,6 +9,8 @@ import {Avatar, Dropdown, Menu, Tooltip} from 'antd';
 import {DashboardOutlined, LogoutOutlined, UserOutlined} from '@ant-design/icons';
 import {logOut} from "../redux/userRedux";
 import {useSnackbar} from "notistack";
+import {resetCart} from "../redux/cartRedux";
+import {resetNotification} from "../redux/alertRedux";
 
 const Container = styled.div`
   height: 60px;
@@ -83,6 +85,8 @@ const Navbar = () => {
     const {enqueueSnackbar} = useSnackbar();
 
     const onClickLogOut = () => {
+        dispatch(resetNotification());
+        dispatch(resetCart());
         dispatch(logOut());
         enqueueSnackbar("You has been logged out.", {variant: "success"});
         history.replace("/");

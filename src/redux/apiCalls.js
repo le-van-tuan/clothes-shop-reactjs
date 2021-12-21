@@ -1,7 +1,7 @@
 import {getProfileFailed, getProfileSuccess, loginFailure, loginStart, loginSuccess} from "./userRedux";
 import {privateRequest, publicRequest} from "../helpers/axiosInstance";
 import {addError, addSuccess} from "./alertRedux";
-import {add, remove} from "./cartRedux";
+import {addNew, editQuantity, remove} from "./cartRedux";
 
 export const login = (user) => async (dispatch) => {
     dispatch(loginStart());
@@ -284,13 +284,18 @@ export const publishProduct = (id) => async (dispatch) => {
  */
 
 export const addItemToCart = (item) => async (dispatch) => {
-    dispatch(add(item));
+    dispatch(addNew(item));
     dispatch(addSuccess({message: "Product added to cart!", timestamp: new Date().getTime()}));
 }
 
 export const removeCartItem = (item) => async (dispatch) => {
     dispatch(remove(item));
     dispatch(addSuccess({message: "Product removed from cart!", timestamp: new Date().getTime()}));
+}
+
+export const updateCartItem = (quantity, item) => async (dispatch) => {
+    dispatch(editQuantity({old: item, quantity}));
+    dispatch(addSuccess({message: "Cart has been updated!", timestamp: new Date().getTime()}));
 }
 
 /**

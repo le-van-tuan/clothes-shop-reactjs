@@ -98,6 +98,7 @@ const ProductDetails = () => {
     const {id} = useParams();
     const dispatch = useDispatch();
     const [product, setProduct] = useState({});
+    const [images, setImages] = useState([]);
 
     useEffect(() => {
         dispatch(getProductDetail(id)).then((res) => {
@@ -107,28 +108,36 @@ const ProductDetails = () => {
         });
     }, []);
 
-    const getDefaultThumbnail = () => {
+    useEffect(() => {
+        if (product.images) {
+            const images = [
+                {
+                    url: getDefaultThumbnail()
+                }
+            ];
+            setImages(images);
+        }
+    }, [product.images]);
+
+    const getDefaultThumbnail = function () {
         if (!product.images) return null;
         const thumbnail = [].concat(product.images).find(img => img.type === "THUMBNAIL");
         return BASE_URL + "products/images/" + thumbnail.url;
     }
-
-    const images = [
-        {url: getDefaultThumbnail()},
-    ];
 
     return (
         <Container>
             <Content>
                 <ProductWrapper>
                     <ProductImages>
-                        <SimpleImageSlider
-                            width={450}
-                            height={450}
-                            images={images}
-                            showBullets={true}
-                            showNavs={true}
-                        />
+                        {
+                            images.length > 0 && <SimpleImageSlider
+                                width={450}
+                                height={450}
+                                images={images}
+                                showBullets={true}
+                                showNavs={true}/>
+                        }
                     </ProductImages>
                     <ProductInfo>
                         <h2>{product.name}</h2>
@@ -138,11 +147,11 @@ const ProductDetails = () => {
                                 if (!tier) return null;
                                 return (
                                     <TierWrapper>
-                                        <div>{tier.name}</div>
-                                        <Select style={{minWidth: 100, marginLeft: 20}}>
+                                        <div><Text type="secondary">{tier.name}</Text></div>
+                                        <Select placeholder={tier.name} style={{minWidth: 100, marginLeft: 20}}>
                                             {[].concat(tier.options).map((option) => {
                                                 return (
-                                                    <Option value={option.id}>
+                                                    <Option key={option.id} value={option.id}>
                                                         {option.value}
                                                     </Option>
                                                 )

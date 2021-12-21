@@ -60,6 +60,7 @@ const Product = ({item}) => {
     }
 
     const onClickAddItemToCart = () => {
+        item.selectedVariant = item.variants[0];
         dispatch(addItemToCart(item));
     }
 
