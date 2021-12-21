@@ -110,7 +110,7 @@ const Wishlist = () => {
                 <p>Your Wishlist</p>
             </PageHeader>
             <Content>
-                <Table pagination={false} style={{flex: 1}} dataSource={profile && profile['wishlist'] || []} columns={columns}/>
+                <Table pagination={false} style={{flex: 1}} dataSource={(profile && profile['wishlist']) || []} columns={columns}/>
             </Content>
         </Container>
     );

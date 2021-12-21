@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import {Button, Result} from "antd";
-import {useHistory} from "react-router-dom";
+import {useHistory, useLocation} from "react-router-dom";
+import {useEffect, useState} from "react";
 
 const Container = styled.div`
   flex: 1;
@@ -16,10 +17,18 @@ const Container = styled.div`
 const SuccessCheckout = () => {
 
     const history = useHistory();
+    const location = useLocation();
+    const [order, setOrder] = useState(null);
 
     const onClickContinue2Shopping = () => {
         history.replace("/");
     }
+
+    useEffect(() => {
+        if (location.state && location.state.order) {
+            setOrder(location.state.order);
+        }
+    }, [location]);
 
     return (
         <Container>
@@ -28,7 +37,7 @@ const SuccessCheckout = () => {
                 title="Thank you for your purchased!"
                 subTitle={
                     <div style={{display: "flex", flexDirection: "column"}}>
-                        <span>You order number is: <b>#543543532</b>.</span>
+                        <span>You order number is: <b>#{order && order['orderNumber']}</b>.</span>
                         <span>You can check your order status at your profile page.</span>
                     </div>
                 }

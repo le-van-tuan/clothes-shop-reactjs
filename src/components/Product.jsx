@@ -2,7 +2,7 @@ import {FavoriteBorderOutlined, ShoppingCartOutlined} from "@material-ui/icons";
 import {BASE_URL} from "../helpers/axiosInstance";
 import {Card, Tooltip} from 'antd';
 import {useDispatch} from "react-redux";
-import {addItem2Wishlist, addItemToCart} from "../redux/apiCalls";
+import {addItem2Wishlist, addItemToCart, getProfile} from "../redux/apiCalls";
 import {useHistory} from "react-router-dom";
 import styled from "styled-components";
 
@@ -65,7 +65,11 @@ const Product = ({item}) => {
     }
 
     const onAddWishlist = () => {
-        dispatch(addItem2Wishlist(item));
+        dispatch(addItem2Wishlist(item)).then((res) => {
+            if (res) {
+                dispatch(getProfile());
+            }
+        });
     }
 
     const onClickViewDetail = () => {

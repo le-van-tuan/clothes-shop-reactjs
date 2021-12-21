@@ -46,7 +46,7 @@ const CartInfo = styled.div`
   margin-left: 30px;
   padding: 20px 30px;
   align-items: center;
-  min-width: 220px;
+  min-width: 250px;
   border: .1rem dashed #d7d7d7;
   background-color: #f9f9f9;
 `
@@ -192,7 +192,7 @@ const Cart = () => {
                     </Detail>
                     <Button
                         disabled={!items.length}
-                        style={{display: "flex", justifyContent: "space-evenly", alignItems: "center", marginTop: 40}}
+                        style={{display: "flex", justifyContent: "center", alignItems: "center", marginTop: 40}}
                         type="primary"
                         onClick={onClickCheckout}
                         htmlType="submit" block icon={<ShoppingCartCheckoutIcon fontSize={"small"}/>}>

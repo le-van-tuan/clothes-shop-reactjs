@@ -131,14 +131,16 @@ const Navbar = () => {
                 <StyledLink to="/wishlist">
                     <Tooltip title="Your wishlist" overlayInnerStyle={{fontSize: 12}}>
                         <MenuItem key={"4"} hidden={!currentUser} title={"Wishlist"}>
-                            <FavoriteBorder/>
+                            <Badge showZero={true} badgeContent={(profile && profile['wishlist'] && profile['wishlist'].length) || 0} color="primary">
+                                <FavoriteBorder/>
+                            </Badge>
                         </MenuItem>
                     </Tooltip>
                 </StyledLink>
                 <StyledLink to="/cart">
                     <Tooltip title="Cart" overlayInnerStyle={{fontSize: 12}}>
                         <MenuItem key={"5"} title={"Cart"}>
-                            <Badge showZero={false} badgeContent={items && items.length || 0} color="error">
+                            <Badge showZero={true} badgeContent={(items && items.length) || 0} color="error">
                                 <LocalMall/>
                             </Badge>
                         </MenuItem>
@@ -150,7 +152,7 @@ const Navbar = () => {
                                 marginRight: 5,
                                 fontSize: 14,
                                 fontWeight: "500"
-                            }}>Welcome, {profile && profile.name || "Yamee"}</span>
+                            }}>Welcome, {(profile && profile.name) || "Yamee"}</span>
                     <Dropdown trigger={['click']} overlay={menu} placement="bottomLeft">
                         <Avatar size={30} style={{backgroundColor: '#87d068'}} icon={<UserOutlined/>}/>
                     </Dropdown>

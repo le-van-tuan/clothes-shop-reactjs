@@ -324,6 +324,39 @@ export const removeWishlistItem = (id) => async (dispatch) => {
 }
 
 /**
+ * ORDERS
+ * @param order
+ * @returns {(function(*): Promise<AxiosResponse<any>|undefined>)|*}
+ */
+export const placeOrder = (order) => async (dispatch) => {
+    try {
+        const response = await privateRequest.post("/orders/place", order);
+        handleApiSuccess(dispatch, "Order has been placed successfully!");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to place your order!");
+    }
+}
+
+export const getMyOrders = () => async (dispatch) => {
+    try {
+        return await privateRequest.get("/orders");
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to get your order!");
+    }
+}
+
+export const cancelOrder = (id) => async (dispatch) => {
+    try {
+        const response = await privateRequest.patch("/orders/" + id);
+        handleApiSuccess(dispatch, "Order has been cancelled successfully!");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to cancel your order!");
+    }
+}
+
+/**
  * API handler
  * @param dispatch
  * @param message
