@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import {useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
 import {useDispatch} from "react-redux";
-import {getProductDetail} from "../redux/apiCalls";
+import {addItem2Wishlist, addItemToCart, getProductDetail, getProfile} from "../redux/apiCalls";
 import {Button, Divider, InputNumber, Select, Typography} from "antd";
 import {BASE_URL} from "../helpers/axiosInstance";
 import {ShoppingCartOutlined} from "@ant-design/icons";
@@ -99,6 +99,9 @@ const ProductDetails = () => {
     const dispatch = useDispatch();
     const [product, setProduct] = useState({});
     const [images, setImages] = useState([]);
+    const [quantity, setQuantity] = useState(1);
+
+    const history = useHistory();
 
     useEffect(() => {
         dispatch(getProductDetail(id)).then((res) => {
@@ -110,19 +113,62 @@ const ProductDetails = () => {
 
     useEffect(() => {
         if (product.images) {
-            const images = [
-                {
-                    url: getDefaultThumbnail()
-                }
-            ];
+            const images = getAllProductImages();
             setImages(images);
         }
     }, [product.images]);
+
+    const getAllProductImages = () => {
+        let result = [];
+        const baseUrl = BASE_URL + "products/images/";
+        if (product.images && product.variants) {
+            product.images.forEach((item) => {
+                result.push({url: baseUrl + item.url});
+            });
+            product.variants.forEach((variant) => {
+                const variantImg = variant.images.map((item) => {
+                    return {url: baseUrl + item.url}
+                });
+                result = result.concat(variantImg);
+            });
+        }
+        return result;
+    }
 
     const getDefaultThumbnail = function () {
         if (!product.images) return null;
         const thumbnail = [].concat(product.images).find(img => img.type === "THUMBNAIL");
         return BASE_URL + "products/images/" + thumbnail.url;
+    }
+
+    const onQuantityChange = (v) => {
+        setQuantity(v);
+    }
+
+    const onClickAdd2Cart = () => {
+        if (product.variants) {
+            product.selectedVariant = product.variants[0];
+            product.quantity = quantity;
+            dispatch(addItemToCart(product));
+        }
+    }
+
+    const onClickAdd2Favorite = () => {
+        dispatch(addItem2Wishlist(product)).then((res) => {
+            if (res) {
+                dispatch(getProfile());
+            }
+        });
+    }
+
+    const onClickBuyNow = () => {
+        if (product.variants) {
+            product.selectedVariant = product.variants[0];
+            product.quantity = quantity;
+            dispatch(addItemToCart(product)).then(() => {
+                history.push("/checkout");
+            });
+        }
     }
 
     return (
@@ -143,12 +189,13 @@ const ProductDetails = () => {
                         <h2>{product.name}</h2>
                         <Text style={{color: "#ee4d2d", fontSize: 18}} strong>$200</Text>
                         {
-                            [].concat(product['tierVariations']).map((tier) => {
+                            [].concat(product['tierVariations']).map((tier, index) => {
                                 if (!tier) return null;
                                 return (
-                                    <TierWrapper>
+                                    <TierWrapper key={index}>
                                         <div><Text type="secondary">{tier.name}</Text></div>
-                                        <Select placeholder={tier.name} style={{minWidth: 100, marginLeft: 20}}>
+                                        <Select key={index} placeholder={tier.name}
+                                                style={{minWidth: 100, marginLeft: 20}}>
                                             {[].concat(tier.options).map((option) => {
                                                 return (
                                                     <Option key={option.id} value={option.id}>
@@ -164,12 +211,13 @@ const ProductDetails = () => {
                         <QuantityInput>
                             <Text type="secondary">Quantity</Text>
                             <div>
-                                <InputNumber min={1} defaultValue={1}/>
-                                <Button size={"middle"} type="primary" icon={<ShoppingCartOutlined/>}>
+                                <InputNumber onChange={onQuantityChange} min={1} defaultValue={quantity}/>
+                                <Button onClick={onClickAdd2Cart} size={"middle"} type="primary"
+                                        icon={<ShoppingCartOutlined/>}>
                                     Add to Cart
                                 </Button>
-                                <Button type="primary" danger>Buy Now</Button>
-                                <Button type="default" icon={<FavoriteBorderOutlined/>}/>
+                                <Button onClick={onClickBuyNow} type="primary" danger>Buy Now</Button>
+                                <Button onClick={onClickAdd2Favorite} type="default" icon={<FavoriteBorderOutlined/>}/>
                             </div>
                         </QuantityInput>
                     </ProductInfo>
@@ -178,7 +226,8 @@ const ProductDetails = () => {
                     <h3>Product Specifications:</h3>
                     <Divider style={{margin: 10}} plain dashed={true}/>
                     {
-                        getReadableSpecifications(product['specifications'] || []).map(value => <SpecRow>
+                        getReadableSpecifications(product['specifications'] || []).map((value, index) => <SpecRow
+                            key={index}>
                             <div style={{width: 130}}>
                                 <Text type="secondary">{value.key}</Text>
                             </div>

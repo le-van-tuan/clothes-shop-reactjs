@@ -16,10 +16,10 @@ const cartSlice = createSlice({
                 if (!action.payload.selectedVariant) return;
                 const foundIndex = state.items.findIndex(product => product.selectedVariant.id === action.payload.selectedVariant.id);
                 if (foundIndex === -1) {
-                    action.payload.quantity = 1;
+                    action.payload.quantity = action.payload.quantity || 1;
                     state.items = state.items.concat(action.payload);
                 } else {
-                    state.items[foundIndex].quantity += 1;
+                    state.items[foundIndex].quantity += action.payload.quantity || 1;
                 }
             }
         },

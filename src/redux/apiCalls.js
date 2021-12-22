@@ -277,6 +277,24 @@ export const publishProduct = (id) => async (dispatch) => {
     }
 }
 
+export const getAllOrder = () => async (dispatch) => {
+    try {
+        return await privateRequest.get("/admin/orders");
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to fetch orders!");
+    }
+}
+
+export const changeOrderStatus = (id, status) => async (dispatch) => {
+    try {
+        const response = await privateRequest.patch("/admin/orders/" + id + `/${status}`);
+        handleApiSuccess(dispatch, "Order has been change to " + status);
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to change status!");
+    }
+}
+
 /**
  * Carts
  * @param item

@@ -2,12 +2,19 @@ import styled from "styled-components";
 import {useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import {cancelOrder, getMyOrders} from "../redux/apiCalls";
-import {Button, Popconfirm, Table, Tooltip, Typography} from "antd";
+import {Button, Image, Popconfirm, Space, Table, Tooltip, Typography} from "antd";
 import CancelIcon from '@mui/icons-material/Cancel';
+import {BASE_URL} from "../helpers/axiosInstance";
 
 const {Text} = Typography;
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
+const AddressItem = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -34,6 +41,74 @@ const Ordered = () => {
         dispatch(cancelOrder(id)).then(() => {
             refreshOrder();
         });
+    }
+
+    const orderItemColumns = [
+        {
+            title: 'Items',
+            dataIndex: 'product',
+            key: 'product',
+            render: (product) => {
+                const thumbnail = [].concat(product.images).find(img => img.type === "THUMBNAIL");
+                return (
+                    <Space size="large">
+                        <Image
+                            height={45}
+                            width={45}
+                            style={{cursor: "pointer"}}
+                            preview={true}
+                            src={BASE_URL + "products/images/" + thumbnail.url}
+                        />
+                        <h4 style={{cursor: "pointer"}}>{product.name}</h4>
+                    </Space>
+                )
+            }
+        },
+        {
+            title: 'Quantity',
+            dataIndex: 'quantity',
+            key: 'quantity',
+        },
+        {
+            title: 'Unit Price',
+            dataIndex: 'unitPrice',
+            align: "right",
+            key: 'price',
+            width: 120,
+            render: (value) => <Text strong>${value}</Text>
+        },
+        {
+            title: 'Subtotal',
+            dataIndex: 'Subtotal',
+            align: "right",
+            width: 120,
+            key: 'Subtotal',
+            render: (value, record) => {
+                const subTotal = record.quantity * record.unitPrice;
+                return (
+                    <Text style={{color: "#ee4d2d"}} strong>${subTotal}</Text>
+                )
+            }
+        }
+    ];
+
+    const nestedRowRenderer = (record) => {
+        return (
+            <Space style={{display: "flex", flex: 1}} direction={"vertical"} size={"middle"}>
+                <AddressItem>
+                    <span style={{display: "flex"}}><Text
+                        type="secondary"
+                        style={{marginRight: 5}}>Shipping Address: </Text><h4>{record.name}</h4></span>
+                    <span><Text
+                        type="secondary"
+                        style={{marginRight: 5}}>Address: </Text>{record.address} - {record.ward} - {record.district} - {record.city}</span>
+                    <span><Text style={{marginRight: 5}}
+                                type="secondary">Phone number: </Text>{record.phoneNumber}</span>
+                </AddressItem>
+                <Table locale={{emptyText: "No Items"}} size={"small"}
+                       columns={orderItemColumns} pagination={false} dataSource={record.orderItems}/>
+            </Space>
+        )
     }
 
     const columns = [
@@ -105,7 +180,12 @@ const Ordered = () => {
 
     return (
         <Container>
-            <Table pagination={false} style={{flex: 1}} dataSource={orders} columns={columns}/>
+            <Table pagination={false}
+                   style={{flex: 1}}
+                   rowKey={"id"}
+                   dataSource={orders}
+                   expandable={{expandedRowRender: nestedRowRenderer}}
+                   columns={columns}/>
         </Container>
     );
 };
