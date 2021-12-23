@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {Badge, Button, Image, List, Popconfirm, Space, Table, Tooltip} from "antd";
+import {Badge, Button, Image, List, Popconfirm, Space, Table, Tooltip, Typography} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {useEffect, useState} from "react";
 import ProductForm from "../components/ProductForm";
@@ -16,10 +16,12 @@ import {BASE_URL} from "../helpers/axiosInstance";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PublishIcon from '@mui/icons-material/Publish';
-import {getReadableSpecifications, groupBy} from "../helpers/utils";
+import {getReadableSpecifications} from "../helpers/utils";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import VariantForm from "../components/VariantForm";
 import CurrencyFormat from "react-currency-format";
+
+const {Text} = Typography;
 
 
 const Container = styled.div`
@@ -188,11 +190,12 @@ const ProductManagement = () => {
 
     const variantColumns = [
         {title: 'Name', dataIndex: 'variantName', key: 'variantName'},
+        {title: 'Variant', dataIndex: 'variantString', key: 'variantString', width: 250},
         {title: 'Stock', dataIndex: 'stock', key: 'stock', width: 100},
         {
             title: 'Cost',
             dataIndex: 'cost',
-            width: 150,
+            width: 100,
             key: 'cost',
             align: "right",
             render: (value) => <CurrencyFormat decimalScale={0} prefix={"$"} value={value} displayType={'text'}
@@ -201,16 +204,17 @@ const ProductManagement = () => {
         {
             title: 'Price',
             align: "right",
-            width: 150,
+            width: 100,
             dataIndex: 'price',
             key: 'price',
             render: (value) => <CurrencyFormat decimalScale={0} prefix={"$"} value={value} displayType={'text'}
                                                thousandSeparator={true}/>
         },
         {
-            title: 'Action',
+            title: 'Actions',
             dataIndex: 'operation',
-            width: 150,
+            width: 120,
+            align: "right",
             key: 'operation',
             render: (value, record) => (
                 <Space size="small">
@@ -232,7 +236,7 @@ const ProductManagement = () => {
         return (
             <Space style={{display: "flex", flex: 1}} direction={"vertical"} size={"middle"}>
                 <div>
-                    <span>Descriptions: {record.description}</span>
+                    <span><Text type="secondary">Descriptions: </Text>{record.description}</span>
                 </div>
                 <div>
                     <List
@@ -247,7 +251,8 @@ const ProductManagement = () => {
                     />
                 </div>
                 <h4>Variants:</h4>
-                <Table locale={{emptyText: "No variants"}} size={"small"} columns={variantColumns} pagination={false} dataSource={record.variants}/>
+                <Table locale={{emptyText: "No variants"}} size={"small"} columns={variantColumns} pagination={false}
+                       dataSource={record.variants}/>
             </Space>
         )
     }

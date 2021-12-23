@@ -64,24 +64,26 @@ const Ordered = () => {
                 )
             }
         },
+        {title: 'Variant', dataIndex: ["variant", 'variantString'], key: 'variantString', width: 200},
         {
             title: 'Quantity',
             dataIndex: 'quantity',
             key: 'quantity',
+            width: 75,
         },
         {
             title: 'Unit Price',
             dataIndex: 'unitPrice',
             align: "right",
             key: 'price',
-            width: 120,
+            width: 100,
             render: (value) => <Text strong>${value}</Text>
         },
         {
             title: 'Subtotal',
             dataIndex: 'Subtotal',
             align: "right",
-            width: 120,
+            width: 100,
             key: 'Subtotal',
             render: (value, record) => {
                 const subTotal = record.quantity * record.unitPrice;

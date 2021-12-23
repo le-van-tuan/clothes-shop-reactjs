@@ -6,7 +6,6 @@ import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import ClearIcon from '@mui/icons-material/Clear';
 import {removeCartItem, updateCartItem} from "../redux/apiCalls";
 import {useHistory} from "react-router-dom";
-import {useEffect} from "react";
 import {useSnackbar} from "notistack";
 
 const {Text} = Typography;
@@ -82,10 +81,6 @@ const Cart = () => {
         dispatch(removeCartItem(item));
     }
 
-    useEffect(() => {
-        console.log("items: ", items);
-    }, [items])
-
     const onClickOnProduct = (id) => {
         history.push("/products/" + id);
     }
@@ -123,11 +118,11 @@ const Cart = () => {
                 )
             }
         },
+        {title: 'Variant', dataIndex: ["selectedVariant", 'variantString'], key: 'variantString', width: 200},
         {
             title: 'Quantity',
             dataIndex: 'quantity',
             key: 'quantity',
-            editable: true,
             render: (value, record) => <InputNumber onChange={(number) => onChangeQuantity(number, record)} min={1}
                                                     defaultValue={value || 1}/>
         },
@@ -136,14 +131,14 @@ const Cart = () => {
             dataIndex: ['selectedVariant', 'price'],
             align: "right",
             key: 'price',
-            width: 120,
+            width: 100,
             render: (value) => <Text strong>${value}</Text>
         },
         {
             title: 'Subtotal',
             dataIndex: 'total',
             align: "right",
-            width: 180,
+            width: 120,
             key: 'total',
             render: (value, record) => {
                 const total = (record['selectedVariant']['price'] * (record['quantity'] || 1));
@@ -155,6 +150,7 @@ const Cart = () => {
         {
             title: '',
             width: 100,
+            align: "right",
             key: 'action',
             render: (value, record) => (
                 <Space size="small">
