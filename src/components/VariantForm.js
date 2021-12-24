@@ -17,6 +17,7 @@ const VariantForm = ({visible, onCreate, onCancel, initialValue}) => {
     const [attributeName, setAttributeName] = useState("");
     const [attributeValue, setAttributeValue] = useState("");
     const [selectedAttributeName, setSelectedAttributeName] = useState(0);
+    const [deletedGalleries, setDeletedGalleries] = useState([]);
 
     useEffect(() => {
         if (visible) {
@@ -31,6 +32,7 @@ const VariantForm = ({visible, onCreate, onCancel, initialValue}) => {
     }
 
     const resetForm = () => {
+        setDeletedGalleries([]);
         form.resetFields();
         setAttributeName("");
         setAttributeValue("");
@@ -89,28 +91,20 @@ const VariantForm = ({visible, onCreate, onCancel, initialValue}) => {
         return lt1M ? false : Upload.LIST_IGNORE;
     }
 
-    const getInitialImages = (type) => {
-        if (initialValue) {
-            const images = [].concat(initialValue.images).filter(img => img.type === type);
-            if (type === "THUMBNAIL" && images) {
-                return [
-                    {
-                        id: images[0].id,
-                        url: BASE_URL + "products/images/" + images[0].url
-                    }
-                ]
-            } else if (images) {
-                return images.map(i => {
-                    return {
-                        existed: true,
-                        id: i.id,
-                        uid: i.id,
-                        url: BASE_URL + "products/images/" + i.url
-                    };
-                });
-            }
-        }
-        return [];
+    const getInitialImages = () => {
+        if (!initialValue || !initialValue.images) return [];
+        return initialValue.images.map(i => {
+            return {
+                existed: true,
+                id: i.id,
+                uid: i.id,
+                url: BASE_URL + "products/images/" + i.url
+            };
+        });
+    }
+
+    const onRemoveGallery = (e) => {
+        setDeletedGalleries(deletedGalleries.concat(e));
     }
 
     const getInitialValue = (field, defaultValue) => {
@@ -136,6 +130,7 @@ const VariantForm = ({visible, onCreate, onCancel, initialValue}) => {
                     .validateFields()
                     .then(values => {
                         form.resetFields();
+                        values.deletedGalleries = deletedGalleries;
                         onCreate(values);
                     });
             }}
@@ -276,14 +271,15 @@ const VariantForm = ({visible, onCreate, onCancel, initialValue}) => {
                     </Form.List>
                 </Form.Item>
                 <Form.Item shouldUpdate={true}
-                           initialValue={getInitialImages("GALLERY")}
+                           initialValue={getInitialImages()}
                            label="Galleries"
                            name={"galleries"}>
                     <Upload
                         beforeUpload={onBeforeUpload}
                         accept={".png,.jpeg,.jpg"}
                         onPreview={onPreview}
-                        defaultFileList={getInitialImages("GALLERY")}
+                        defaultFileList={getInitialImages()}
+                        onRemove={onRemoveGallery}
                         maxCount={6}
                         listType="picture-card"
                     >

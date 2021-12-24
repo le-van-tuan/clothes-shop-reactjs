@@ -286,10 +286,19 @@ export const addProductVariant = (variant) => async (dispatch) => {
 export const updateProductVariant = (id, variant) => async (dispatch) => {
     try {
         const formData = new FormData();
-        if (variant['galleries'] && variant['galleries'].fileList) {
-            [].concat(variant['galleries'].fileList).forEach(img => {
-                formData.append('galleries', img.originFileObj);
-            });
+        if (variant['galleries']) {
+            if (Array.isArray(variant['galleries'])) {
+                variant.updateGalleries = false;
+            } else if (typeof variant['galleries'] === 'object') {
+                variant.updateGalleries = true;
+                variant.deletedGalleries = variant.deletedGalleries || [];
+                if (variant['galleries'].fileList.length) {
+                    const newImg = variant['galleries'].fileList.filter(i => !i.existed);
+                    newImg.forEach(img => {
+                        formData.append('galleries', img.originFileObj);
+                    });
+                }
+            }
         }
         delete variant.galleries;
 

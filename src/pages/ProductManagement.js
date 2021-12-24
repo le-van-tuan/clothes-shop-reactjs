@@ -11,7 +11,8 @@ import {
     deleteProductVariant,
     getProducts,
     publishProduct,
-    updateProduct, updateProductVariant
+    updateProduct,
+    updateProductVariant
 } from "../redux/apiCalls";
 import {BASE_URL} from "../helpers/axiosInstance";
 import EditIcon from '@mui/icons-material/Edit';
