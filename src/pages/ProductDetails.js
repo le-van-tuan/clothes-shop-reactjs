@@ -9,6 +9,7 @@ import {ShoppingCartOutlined} from "@ant-design/icons";
 import {FavoriteBorderOutlined} from "@material-ui/icons";
 import {getReadableSpecifications} from "../helpers/utils";
 import SimpleImageSlider from "react-simple-image-slider";
+import {useSnackbar} from "notistack";
 
 const {Text} = Typography;
 const {Option} = Select;
@@ -58,10 +59,10 @@ const ProductInfo = styled.div`
 `;
 
 const QuantityInput = styled.div`
-  margin-top: 20px;
+  margin-top: 30px;
 
   & > div {
-    margin-top: 5px;
+    margin-top: 20px;
     display: flex;
     align-items: center;
 
@@ -97,9 +98,12 @@ const TierWrapper = styled.div`
 const ProductDetails = () => {
     const {id} = useParams();
     const dispatch = useDispatch();
+    const {enqueueSnackbar} = useSnackbar();
+
     const [product, setProduct] = useState({});
     const [images, setImages] = useState([]);
     const [quantity, setQuantity] = useState(1);
+    const [selectedVariant, setSelectedVariant] = useState({});
 
     const history = useHistory();
 
@@ -110,6 +114,12 @@ const ProductDetails = () => {
             }
         });
     }, []);
+
+    useEffect(() => {
+        if (product.variants) {
+            setSelectedVariant(product.variants[0]);
+        }
+    }, [product]);
 
     useEffect(() => {
         if (product.images) {
@@ -146,8 +156,12 @@ const ProductDetails = () => {
     }
 
     const onClickAdd2Cart = () => {
+        if (quantity > selectedVariant['stock']) {
+            enqueueSnackbar("Max quantity must less than " + selectedVariant['stock'], {variant: "error"});
+            return;
+        }
         if (product.variants) {
-            product.selectedVariant = product.variants[0];
+            product.selectedVariant = selectedVariant;
             product.quantity = quantity;
             dispatch(addItemToCart(product));
         }
@@ -162,8 +176,12 @@ const ProductDetails = () => {
     }
 
     const onClickBuyNow = () => {
+        if (quantity > selectedVariant['stock']) {
+            enqueueSnackbar("Max quantity must less than " + selectedVariant['stock'], {variant: "error"});
+            return;
+        }
         if (product.variants) {
-            product.selectedVariant = product.variants[0];
+            product.selectedVariant = selectedVariant;
             product.quantity = quantity;
             dispatch(addItemToCart(product)).then(() => {
                 history.push("/checkout");
@@ -171,80 +189,73 @@ const ProductDetails = () => {
         }
     }
 
-    return (
-        <Container>
-            <Content>
-                <ProductWrapper>
-                    <ProductImages>
-                        {
-                            images.length > 0 && <SimpleImageSlider
-                                width={450}
-                                height={450}
-                                images={images}
-                                showBullets={true}
-                                showNavs={true}/>
-                        }
-                    </ProductImages>
-                    <ProductInfo>
-                        <h2>{product.name}</h2>
-                        <Text style={{color: "#ee4d2d", fontSize: 18}} strong>$200</Text>
-                        {
-                            [].concat(product['tierVariations']).map((tier, index) => {
-                                if (!tier) return null;
-                                return (
-                                    <TierWrapper key={index}>
-                                        <div><Text type="secondary">{tier.name}</Text></div>
-                                        <Select key={index} placeholder={tier.name}
-                                                style={{minWidth: 100, marginLeft: 20}}>
-                                            {[].concat(tier.options).map((option) => {
-                                                return (
-                                                    <Option key={option.id} value={option.id}>
-                                                        {option.value}
-                                                    </Option>
-                                                )
-                                            })}
-                                        </Select>
-                                    </TierWrapper>
-                                )
-                            })
-                        }
-                        <QuantityInput>
-                            <Text type="secondary">Quantity</Text>
-                            <div>
-                                <InputNumber onChange={onQuantityChange} min={1} defaultValue={quantity}/>
-                                <Button onClick={onClickAdd2Cart} size={"middle"} type="primary"
-                                        icon={<ShoppingCartOutlined/>}>
-                                    Add to Cart
-                                </Button>
-                                <Button onClick={onClickBuyNow} type="primary" danger>Buy Now</Button>
-                                <Button onClick={onClickAdd2Favorite} type="default" icon={<FavoriteBorderOutlined/>}/>
-                            </div>
-                        </QuantityInput>
-                    </ProductInfo>
-                </ProductWrapper>
-                <div>
-                    <h3>Product Specifications:</h3>
-                    <Divider style={{margin: 10}} plain dashed={true}/>
-                    {
-                        getReadableSpecifications(product['specifications'] || []).map((value, index) => <SpecRow
-                            key={index}>
-                            <div style={{width: 130}}>
-                                <Text type="secondary">{value.key}</Text>
-                            </div>
-                            <div>
-                                {value.values}
-                            </div>
-                        </SpecRow>)
-                    }
-                </div>
-                <div>
-                    <h3>Product Description:</h3>
-                    <Divider style={{margin: 10}} plain dashed={true}/>
-                    <p>{product.description}</p>
-                </div>
-            </Content>
-        </Container>
-    );
+    const onVariantChange = (value) => {
+        const variant = product.variants.find(e => e.id === value);
+        if (variant) {
+            setSelectedVariant(variant);
+        }
+    }
+
+    return (<Container>
+        <Content>
+            <ProductWrapper>
+                <ProductImages>
+                    {images.length > 0 && <SimpleImageSlider
+                        width={450}
+                        height={450}
+                        images={images}
+                        showBullets={true}
+                        showNavs={true}/>}
+                </ProductImages>
+                <ProductInfo>
+                    <h2>{product.name}</h2>
+                    <Text style={{color: "#ee4d2d", fontSize: 18}} strong>${selectedVariant.price}</Text>
+                    <TierWrapper>
+                        <div><Text type="secondary">Variant</Text></div>
+                        <Select onChange={onVariantChange} value={selectedVariant.id || -1}
+                                style={{minWidth: 250, marginLeft: 20}}>
+                            {[].concat(product.variants || []).map((option) => {
+                                return (<Option key={option.id} value={option.id}>
+                                    {option['variantString']}
+                                </Option>)
+                            })}
+                        </Select>
+                    </TierWrapper>
+                    <QuantityInput>
+                        <div><Text type="secondary" style={{width: 80}}>Quantity</Text> <Text
+                            type="danger" style={{marginLeft: 10}}>{selectedVariant.stock} items available</Text></div>
+                        <div>
+                            <InputNumber onChange={onQuantityChange} min={1} max={selectedVariant['stock']} defaultValue={quantity}/>
+                            <Button disabled={selectedVariant['stock'] === 0} onClick={onClickAdd2Cart} size={"middle"} type="primary"
+                                    icon={<ShoppingCartOutlined/>}>
+                                Add to Cart
+                            </Button>
+                            <Button disabled={selectedVariant['stock'] === 0} onClick={onClickBuyNow} type="primary" danger>Buy Now</Button>
+                            <Button onClick={onClickAdd2Favorite} type="default" icon={<FavoriteBorderOutlined/>}/>
+                        </div>
+                    </QuantityInput>
+                </ProductInfo>
+            </ProductWrapper>
+            <div>
+                <h3>Product Specifications:</h3>
+                <Divider style={{margin: 10}} plain dashed={true}/>
+                {getReadableSpecifications(product['specifications'] || []).map((value, index) => <SpecRow
+                    key={index}>
+                    <div style={{width: 130}}>
+                        <Text type="secondary">{value.key}</Text>
+                    </div>
+                    <div>
+                        {value.values}
+                    </div>
+                </SpecRow>)}
+            </div>
+            <div>
+                <h3>Product Description:</h3>
+                <Divider style={{margin: 10}} plain dashed={true}/>
+                <p>{product.description}</p>
+            </div>
+        </Content>
+    </Container>);
 };
 
 export default ProductDetails;

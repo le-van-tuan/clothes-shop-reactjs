@@ -222,6 +222,43 @@ export const addProduct = (product) => async (dispatch) => {
     }
 }
 
+export const updateProduct = (id, product) => async (dispatch) => {
+    try {
+        const formData = new FormData();
+        if (product.thumbnail) {
+            formData.append('thumbnail', product.thumbnail.fileList[0].originFileObj);
+        }
+        if (product['galleries']) {
+            if (Array.isArray(product['galleries'])) {
+                product.updateGalleries = false;
+            } else if (typeof product['galleries'] === 'object') {
+                product.updateGalleries = true;
+                product.deletedGalleries = product.removedGalleries || [];
+                if (product['galleries'].fileList.length) {
+                    const newImg = product['galleries'].fileList.filter(i => !i.existed);
+                    newImg.forEach(img => {
+                        formData.append('galleries', img.originFileObj);
+                    });
+                }
+            }
+        }
+        delete product.thumbnail;
+        delete product.galleries;
+
+        formData.append("product", JSON.stringify(product));
+        const config = {
+            headers: {
+                'content-type': 'multipart/form-data'
+            }
+        }
+        const response = await privateRequest.patch("/admin/products/" + id, formData, config);
+        handleApiSuccess(dispatch, "Successfully update product");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to update product!");
+    }
+}
+
 export const addProductVariant = (variant) => async (dispatch) => {
     try {
         const formData = new FormData();
@@ -243,6 +280,30 @@ export const addProductVariant = (variant) => async (dispatch) => {
         return response;
     } catch (error) {
         handleApiError(dispatch, error, "Failed to add product variant!");
+    }
+}
+
+export const updateProductVariant = (id, variant) => async (dispatch) => {
+    try {
+        const formData = new FormData();
+        if (variant['galleries'] && variant['galleries'].fileList) {
+            [].concat(variant['galleries'].fileList).forEach(img => {
+                formData.append('galleries', img.originFileObj);
+            });
+        }
+        delete variant.galleries;
+
+        formData.append("variant", JSON.stringify(variant));
+        const config = {
+            headers: {
+                'content-type': 'multipart/form-data'
+            }
+        }
+        const response = await privateRequest.patch("/admin/products/variants/" + id, formData, config);
+        handleApiSuccess(dispatch, "Successfully update product variant");
+        return response;
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to update product variant!");
     }
 }
 

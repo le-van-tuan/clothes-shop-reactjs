@@ -240,10 +240,12 @@ const Checkout = () => {
                 )
             }
         },
+        {title: 'Variant', dataIndex: ["selectedVariant", 'variantString'], key: 'variantString', width: 220},
         {
             title: 'Quantity',
             dataIndex: 'quantity',
             key: 'quantity',
+            width: 80,
         },
         {
             title: 'Unit Price',
@@ -257,7 +259,7 @@ const Checkout = () => {
             title: 'Subtotal',
             dataIndex: 'total',
             align: "right",
-            width: 180,
+            width: 160,
             key: 'total',
             render: (value, record) => {
                 const total = (record['selectedVariant']['price'] * (record['quantity'] || 1));
