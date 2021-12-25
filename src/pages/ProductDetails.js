@@ -122,33 +122,30 @@ const ProductDetails = () => {
     }, [product]);
 
     useEffect(() => {
+        const baseUrl = BASE_URL + "products/images/";
+        if (selectedVariant && selectedVariant.images) {
+            const result = selectedVariant.images.map((it) => {
+                return {url: baseUrl + it.url};
+            });
+            setImages(result.concat(getAllProductImages()));
+        }
+    }, [selectedVariant]);
+
+    useEffect(() => {
         if (product.images) {
-            const images = getAllProductImages();
-            setImages(images);
+            setImages(getAllProductImages());
         }
     }, [product.images]);
 
     const getAllProductImages = () => {
         let result = [];
         const baseUrl = BASE_URL + "products/images/";
-        if (product.images && product.variants) {
+        if (product.images && product.images.length) {
             product.images.forEach((item) => {
                 result.push({url: baseUrl + item.url});
             });
-            product.variants.forEach((variant) => {
-                const variantImg = variant.images.map((item) => {
-                    return {url: baseUrl + item.url}
-                });
-                result = result.concat(variantImg);
-            });
         }
         return result;
-    }
-
-    const getDefaultThumbnail = function () {
-        if (!product.images) return null;
-        const thumbnail = [].concat(product.images).find(img => img.type === "THUMBNAIL");
-        return BASE_URL + "products/images/" + thumbnail.url;
     }
 
     const onQuantityChange = (v) => {
@@ -204,6 +201,7 @@ const ProductDetails = () => {
                         width={450}
                         height={450}
                         images={images}
+                        startIndex={0}
                         showBullets={true}
                         showNavs={true}/>}
                 </ProductImages>
@@ -225,12 +223,15 @@ const ProductDetails = () => {
                         <div><Text type="secondary" style={{width: 80}}>Quantity</Text> <Text
                             type="danger" style={{marginLeft: 10}}>{selectedVariant.stock} items available</Text></div>
                         <div>
-                            <InputNumber onChange={onQuantityChange} min={1} max={selectedVariant['stock']} defaultValue={quantity}/>
-                            <Button disabled={selectedVariant['stock'] === 0} onClick={onClickAdd2Cart} size={"middle"} type="primary"
+                            <InputNumber onChange={onQuantityChange} min={1} max={selectedVariant['stock']}
+                                         defaultValue={quantity}/>
+                            <Button disabled={selectedVariant['stock'] === 0} onClick={onClickAdd2Cart} size={"middle"}
+                                    type="primary"
                                     icon={<ShoppingCartOutlined/>}>
                                 Add to Cart
                             </Button>
-                            <Button disabled={selectedVariant['stock'] === 0} onClick={onClickBuyNow} type="primary" danger>Buy Now</Button>
+                            <Button disabled={selectedVariant['stock'] === 0} onClick={onClickBuyNow} type="primary"
+                                    danger>Buy Now</Button>
                             <Button onClick={onClickAdd2Favorite} type="default" icon={<FavoriteBorderOutlined/>}/>
                         </div>
                     </QuantityInput>

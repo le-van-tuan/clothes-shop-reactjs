@@ -188,6 +188,17 @@ export const getNewArrivals = () => async (dispatch) => {
     }
 }
 
+export const filterProduct = (categories) => async (dispatch) => {
+    try {
+        const params = {};
+        if (categories) params.categories = categories;
+
+        return await publicRequest.get("/products/filters", {params});
+    } catch (error) {
+        handleApiError(dispatch, error, "Failed to filter products");
+    }
+}
+
 export const getProductDetail = (id) => async (dispatch) => {
     try {
         return await publicRequest.get("/products/" + id);

@@ -18,6 +18,7 @@ const Footer = styled.div`
 
 const CustomCard = styled(Card)`
   transition: box-shadow 0.3s, border-color 0.3s;
+  margin: 5px;
 
   &:hover {
     border-color: transparent;
@@ -85,8 +86,9 @@ const Product = ({item}) => {
 
     return (
         <CustomCard
-            style={{width: 250}}
-            cover={<img style={{cursor: "pointer"}} onClick={onClickViewDetail} alt="example"
+            style={{width: 270}}
+            bordered={true}
+            cover={<img style={{cursor: "pointer", height: 270}} onClick={onClickViewDetail} alt="example"
                         src={getThumbnail()}/>}>
             <Meta title={item.name}/>
             <Footer>

@@ -1,6 +1,6 @@
 import {Badge} from "@material-ui/core";
 import {FavoriteBorder, LocalMall} from "@material-ui/icons";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import styled from "styled-components";
 import {mobile} from "../responsive";
 import {Link, useHistory} from "react-router-dom";
@@ -11,6 +11,7 @@ import {logOut} from "../redux/userRedux";
 import {useSnackbar} from "notistack";
 import {resetCart} from "../redux/cartRedux";
 import {resetNotification} from "../redux/alertRedux";
+import {getCategories} from "../redux/apiCalls";
 
 const Container = styled.div`
   height: 60px;
@@ -32,6 +33,16 @@ const Left = styled.div`
   flex: 1;
   display: flex;
   align-items: center;
+
+  & > div {
+    margin-left: 50px;
+    display: flex;
+    flex-direction: row;
+  }
+
+  & * + * {
+    margin-left: 25px;
+  }
 `;
 styled.span`
   font-size: 14px;
@@ -80,6 +91,16 @@ const Navbar = () => {
     const {profile} = useSelector((state) => state.user);
     const {items} = useSelector((state) => state.cart);
 
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        dispatch(getCategories()).then((r) => {
+            if (r) {
+                setCategories(r.data);
+            }
+        });
+    }, []);
+
     const dispatch = useDispatch();
     const history = useHistory();
     const {enqueueSnackbar} = useSnackbar();
@@ -118,6 +139,15 @@ const Navbar = () => {
                 <Link to="/">
                     <Logo>YAMEE</Logo>
                 </Link>
+                <div>
+                    {
+                        [].concat(categories).slice(0, 4).map((cate) =>
+                            <Link key={cate.id} to={"/filter-products?category=" + cate.id}>
+                                <h3>{cate.name}</h3>
+                            </Link>
+                        )
+                    }
+                </div>
             </Left>
             <Center>
             </Center>
@@ -131,7 +161,9 @@ const Navbar = () => {
                 <StyledLink to="/wishlist">
                     <Tooltip title="Your wishlist" overlayInnerStyle={{fontSize: 12}}>
                         <MenuItem key={"4"} hidden={!currentUser} title={"Wishlist"}>
-                            <Badge showZero={true} badgeContent={(profile && profile['wishlist'] && profile['wishlist'].length) || 0} color="primary">
+                            <Badge showZero={true}
+                                   badgeContent={(profile && profile['wishlist'] && profile['wishlist'].length) || 0}
+                                   color="primary">
                                 <FavoriteBorder/>
                             </Badge>
                         </MenuItem>
