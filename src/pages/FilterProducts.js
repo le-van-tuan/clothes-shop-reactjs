@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {Button, Checkbox, Divider, Typography} from "antd";
+import {Button, Checkbox, Divider, Empty, Typography} from "antd";
 import {useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 import {filterProduct, getCategories} from "../redux/apiCalls";
@@ -189,6 +189,10 @@ const FilterProducts = () => {
                 </SortHeader>
                 <ProductsContainer>
                     {productPageable.content.map((item) => <Product item={item} key={item.id}/>)}
+                    {!productPageable.content.length &&
+                        <Empty style={{marginTop: 100}}
+                               description={"There are no items..."}/>
+                    }
                 </ProductsContainer>
             </ProductListContainer>
         </Content>
